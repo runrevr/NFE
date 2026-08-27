@@ -1,10 +1,21 @@
 ---
 import { identity, nav } from "../data/company";
+
+interface Props {
+  /** Interior pages need an opaque bar; the homepage floats over the hero. */
+  solid?: boolean;
+}
+
+const { solid = false } = Astro.props;
+
+const shell = solid
+  ? "fixed inset-x-0 top-0 z-30 border-b border-steel/25 bg-iron"
+  : "absolute inset-x-0 top-0 z-30 border-b border-steel/15 bg-gradient-to-b from-iron/80 to-transparent";
+
+const current = Astro.url.pathname.replace(/\/$/, "");
 ---
 
-<header
-  class="absolute inset-x-0 top-0 z-30 border-b border-steel/15 bg-gradient-to-b from-iron/80 to-transparent"
->
+<header class={shell}>
   <div
     class="mx-auto flex max-w-[86rem] items-center justify-between gap-6 px-5 py-4 sm:px-8"
   >
@@ -24,7 +35,11 @@ import { identity, nav } from "../data/company";
         nav.map((item) => (
           <a
             href={item.href}
-            class="redline font-display text-sm font-semibold uppercase tracking-[0.12em] text-vellum/75 transition-[background-size,color] duration-200 hover:redline-on hover:text-vellum focus-visible:text-vellum"
+            aria-current={current === item.href ? "page" : undefined}
+            class:list={[
+              "redline font-display text-sm font-semibold uppercase tracking-[0.12em] transition-[background-size,color] duration-200 hover:redline-on hover:text-vellum focus-visible:text-vellum",
+              current === item.href ? "text-blaze" : "text-vellum/75",
+            ]}
           >
             {item.label}
           </a>

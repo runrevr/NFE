@@ -1,0 +1,48 @@
+---
+/**
+ * Interior page shell. Every page other than the homepage uses this so the
+ * nav, page header and title-block footer stay identical across the site.
+ */
+import Base from "./Base.astro";
+import Nav from "../components/Nav.astro";
+import TitleBlockFooter from "../components/TitleBlockFooter.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Uppercase display heading at the top of the page. */
+  heading: string;
+  /** Mono kicker above the heading — a station mark, sheet no., or category. */
+  eyebrow?: string;
+  /** One or two sentences under the heading. */
+  intro?: string;
+}
+
+const { title, description, heading, eyebrow, intro } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <Nav solid />
+  <main id="main">
+    <header class="border-b border-steel/25 bg-gunmetal pb-12 pt-32 sm:pb-14">
+      <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+        {eyebrow && <p class="label-mono mb-4 text-blaze">{eyebrow}</p>}
+        <h1
+          class="max-w-[20ch] font-display text-[clamp(2.5rem,6vw,4.5rem)] font-bold uppercase leading-[0.92] tracking-tight text-vellum"
+        >
+          {heading}
+        </h1>
+        {
+          intro && (
+            <p class="mt-5 max-w-[58ch] text-lg leading-relaxed text-vellum/80">
+              {intro}
+            </p>
+          )
+        }
+      </div>
+    </header>
+
+    <slot />
+  </main>
+  <TitleBlockFooter />
+</Base>
