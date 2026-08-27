@@ -75,12 +75,17 @@ import { identity } from "../data/company";
   const HERO_VIDEO_READY = true;
 
   const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
-  const wideEnough = window.matchMedia("(min-width: 768px)").matches;
 
-  if (video && HERO_VIDEO_READY && motionOK && wideEnough) {
+  if (video && HERO_VIDEO_READY && motionOK) {
+    /* A 720p cut goes to phones — a third of the bytes, and more than enough
+       resolution once it is cropped to a handset. The blueprint targets rural
+       LTE, so the saving matters more than the pixels here. */
+    const small = window.matchMedia("(max-width: 767px)").matches;
+    const suffix = small ? "-720" : "";
+
     for (const [src, type] of [
-      ["/hero/hero.webm", "video/webm"],
-      ["/hero/hero.mp4", "video/mp4"],
+      [`/hero/hero${suffix}.webm`, "video/webm"],
+      [`/hero/hero${suffix}.mp4`, "video/mp4"],
     ]) {
       const source = document.createElement("source");
       source.src = src;
