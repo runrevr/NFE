@@ -27,8 +27,10 @@ import { identity } from "../data/company";
     class="absolute inset-0 -z-10 h-full w-full object-cover opacity-0 transition-opacity duration-700"
   ></video>
 
+  {/* Copy sits in the lower half, so the scrim is heaviest there. Without it
+      the subhead crosses bright snow and drops to ~1.8:1. */}
   <div
-    class="absolute inset-0 -z-10 bg-gradient-to-t from-iron via-iron/70 to-iron/25"
+    class="absolute inset-0 -z-10 bg-gradient-to-t from-iron via-iron/85 to-iron/35"
   >
   </div>
   <div class="absolute inset-0 -z-10 bg-blaze/5 mix-blend-overlay"></div>

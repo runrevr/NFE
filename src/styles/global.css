@@ -8,7 +8,8 @@
 
 @theme {
   --color-blaze: #f16e38;
-  --color-blaze-deep: #c8541f;
+  /* Small text on vellum needs 4.5:1; this lands at 5.07:1. */
+  --color-blaze-deep: #a84214;
   --color-iron: #17181c;
   --color-gunmetal: #23262d;
   --color-vellum: #efeae0;
@@ -51,17 +52,14 @@
 
 /* Engineering vernacular ------------------------------------------------- */
 
-/* Drafting hatch, used behind dark sections at low opacity. */
-@utility hatch-bg {
-  background-image: repeating-linear-gradient(
-    45deg,
-    color-mix(in srgb, var(--color-steel) 8%, transparent) 0 1px,
-    transparent 1px 7px
-  );
+/* Warm drafting-paper ground for light sections. */
+@utility vellum-texture {
+  background-color: var(--color-vellum);
 }
 
-/* Warm drafting-paper tint with a faint plotter grid. */
-@utility vellum-texture {
+/* Plotter grid. Only for the plan sheet, where a measurement grid is the
+   actual subject — decorative grid fields elsewhere read as generated. */
+@utility plan-grid {
   background-color: var(--color-vellum);
   background-image:
     linear-gradient(
@@ -91,6 +89,7 @@
 /* Small uppercase mono label used across title blocks and callouts. */
 @utility label-mono {
   font-family: var(--font-mono);
+  /* 11px floor: below this, functional labels stop being legible. */
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;

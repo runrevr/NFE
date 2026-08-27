@@ -2,7 +2,7 @@
 import { sectors } from "../data/company";
 ---
 
-<section id="capabilities" class="hatch-bg bg-iron py-4">
+<section id="capabilities" class="bg-iron py-4">
   <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
     <h2
       class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
@@ -21,7 +21,7 @@ import { sectors } from "../data/company";
       {
         sectors.map((sector) => (
           <article class="group relative bg-gunmetal p-6 transition-colors duration-200 hover:bg-graphite sm:p-7">
-            <span class="absolute inset-x-0 top-0 h-0.5 w-0 bg-blaze transition-[width] duration-300 group-hover:w-full" />
+            <span class="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-blaze transition-transform duration-300 group-hover:scale-x-100" />
             <h3 class="font-display text-2xl font-semibold uppercase leading-tight tracking-tight text-vellum">
               {sector.title}
             </h3>

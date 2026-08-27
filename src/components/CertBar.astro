@@ -6,14 +6,15 @@ import { certifications } from "../data/company";
   aria-label="Certifications and bonding"
   class="relative z-20 border-y border-steel/25 bg-gunmetal"
 >
-  {/* Narrow screens anchor the tooltip to the bar so a fixed-width panel
-      cannot overhang the viewport; wide screens anchor it to the badge. */}
+  {/* A 16rem panel only fits centered on a badge once the bar is wide enough
+      (~1280px with five badges). Below that it anchors to the bar instead, so
+      it can never overhang the viewport. */}
   <div
     class="mx-auto flex max-w-[86rem] flex-wrap items-stretch justify-center gap-x-2 gap-y-1 px-3 py-2 sm:px-8"
   >
     {
       certifications.map((cert) => (
-        <div class="group flex-1 basis-[8.5rem] sm:relative">
+        <div class="group flex-1 basis-[8.5rem] xl:relative">
           <button
             type="button"
             data-toggletip
@@ -32,7 +33,7 @@ import { certifications } from "../data/company";
           <div
             id={`tip-${cert.id}`}
             role="tooltip"
-            class="tip pointer-events-none absolute bottom-full left-3 right-3 z-30 mb-2 border border-steel/40 bg-iron p-3.5 text-left opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 sm:left-1/2 sm:right-auto sm:w-64 sm:-translate-x-1/2"
+            class="tip pointer-events-none absolute bottom-full left-3 right-3 z-30 mb-2 border border-steel/40 bg-iron p-3.5 text-left opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 xl:left-1/2 xl:right-auto xl:w-64 xl:-translate-x-1/2"
           >
             <p class="label-mono mb-1.5 text-blaze">{cert.name}</p>
             <p class="text-[0.8125rem] leading-relaxed text-vellum/85">

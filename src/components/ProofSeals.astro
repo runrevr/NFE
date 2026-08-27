@@ -19,19 +19,14 @@ import { commendations } from "../data/company";
           <figure class="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-7">
             <svg
               viewBox="0 0 120 120"
-              class="h-24 w-24 shrink-0 sm:h-28 sm:w-28"
+              class="h-28 w-28 shrink-0 sm:h-32 sm:w-32"
               role="img"
               aria-label={`${item.rating} rating for ${item.category}, ${item.agency}`}
             >
               <defs>
                 <path
                   id={`arc-top-${item.id}`}
-                  d="M 22 60 A 38 38 0 0 1 98 60"
-                  fill="none"
-                />
-                <path
-                  id={`arc-bottom-${item.id}`}
-                  d="M 26 60 A 34 34 0 0 0 94 60"
+                  d="M 20 60 A 40 40 0 0 1 100 60"
                   fill="none"
                 />
               </defs>
@@ -49,31 +44,17 @@ import { commendations } from "../data/company";
                 cy="60"
                 r="48"
                 fill="none"
-                stroke="#c8541f"
+                stroke="#a84214"
                 stroke-width="2"
               />
               <text
                 class="font-mono"
-                fill="#c8541f"
-                font-size="8.5"
-                letter-spacing="2.4"
+                fill="#a84214"
+                font-size="11"
+                letter-spacing="2.2"
               >
                 <textPath href={`#arc-top-${item.id}`} startOffset="50%" text-anchor="middle">
                   {item.rating.toUpperCase()}
-                </textPath>
-              </text>
-              <text
-                class="font-mono text-graphite/70"
-                fill="currentColor"
-                font-size="6"
-                letter-spacing="1.6"
-              >
-                <textPath
-                  href={`#arc-bottom-${item.id}`}
-                  startOffset="50%"
-                  text-anchor="middle"
-                >
-                  USDA FOREST SERVICE
                 </textPath>
               </text>
               <line
@@ -81,7 +62,7 @@ import { commendations } from "../data/company";
                 y1="52"
                 x2="86"
                 y2="52"
-                stroke="#c8541f"
+                stroke="#a84214"
                 stroke-width="0.75"
               />
               <line
@@ -89,7 +70,7 @@ import { commendations } from "../data/company";
                 y1="70"
                 x2="86"
                 y2="70"
-                stroke="#c8541f"
+                stroke="#a84214"
                 stroke-width="0.75"
               />
               <text
@@ -107,10 +88,10 @@ import { commendations } from "../data/company";
             </svg>
 
             <div>
-              <blockquote class="font-display text-2xl font-semibold leading-[1.15] tracking-tight text-graphite sm:text-[1.75rem]">
+              <blockquote class="font-display text-2xl font-semibold leading-[1.25] tracking-tight text-graphite sm:text-[1.75rem]">
                 “{item.pullQuote}”
               </blockquote>
-              <figcaption class="mt-3.5 font-mono text-xs leading-relaxed tracking-tight text-graphite/65">
+              <figcaption class="mt-3.5 font-mono text-xs leading-relaxed tracking-tight text-graphite/75">
                 {item.attribution}
                 <br />
                 {item.agency} · {item.category} rating: {item.rating}
