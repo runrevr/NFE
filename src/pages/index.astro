@@ -1,17 +1,43 @@
 ---
-
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Hero from "../components/Hero.astro";
+import CertBar from "../components/CertBar.astro";
+import SectorGrid from "../components/SectorGrid.astro";
+import ProofSeals from "../components/ProofSeals.astro";
+import FeaturedProjects from "../components/FeaturedProjects.astro";
+import PlanSheetRamsey from "../components/PlanSheetRamsey.astro";
+import ByTheNumbers from "../components/ByTheNumbers.astro";
+import PartnerCta from "../components/PartnerCta.astro";
+import CareersTeaser from "../components/CareersTeaser.astro";
+import TitleBlockFooter from "../components/TitleBlockFooter.astro";
+import StationDivider from "../components/StationDivider.astro";
+import { identity } from "../data/company";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+  title="North Fork Enterprises — Heavy Civil Contractor | Pinehurst, Idaho"
+  description={identity.positioning}
+>
+  <Nav />
+  <main id="main">
+    <Hero />
+    <CertBar />
+
+    <StationDivider station="STA 1+00" label="Capabilities" />
+    <SectorGrid />
+
+    <ProofSeals />
+
+    <StationDivider station="STA 2+00" label="Selected work" />
+    <FeaturedProjects />
+
+    <StationDivider station="STA 3+00" label="Ramsey Rd — Sheet C-101" />
+    <PlanSheetRamsey />
+
+    <ByTheNumbers />
+    <PartnerCta />
+    <CareersTeaser />
+  </main>
+  <TitleBlockFooter />
+</Base>

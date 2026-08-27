@@ -1,0 +1,81 @@
+---
+import { Image } from "astro:assets";
+import { featuredProjects } from "../data/company";
+
+import i90 from "../assets/photos/featured-i90.jpg";
+import ramsey from "../assets/photos/featured-ramsey.jpg";
+import willowCreek from "../assets/photos/featured-willow-creek.jpg";
+
+const photos: Record<string, ImageMetadata> = {
+  "featured-i90": i90,
+  "featured-ramsey": ramsey,
+  "featured-willow-creek": willowCreek,
+};
+---
+
+<section id="projects" class="bg-iron py-4">
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h2
+          class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+        >
+          Selected work
+        </h2>
+        <p class="mt-3 max-w-[50ch] text-vellum/70">
+          Prime and sub, federal to municipal, across Idaho and Washington.
+        </p>
+      </div>
+      <a
+        href="#projects"
+        class="redline font-display text-sm font-semibold uppercase tracking-[0.12em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >All projects →</a
+      >
+    </div>
+
+    <div data-projects class="mt-10 grid gap-6 md:grid-cols-3">
+      {
+        featuredProjects.map((project) => (
+          <a
+            href={`#projects`}
+            class="group flex flex-col border border-steel/20 bg-gunmetal transition-colors duration-200 hover:border-blaze/60"
+          >
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <Image
+                src={photos[project.photo]}
+                alt={project.alt}
+                widths={[420, 840]}
+                sizes="(min-width: 768px) 32vw, 100vw"
+                loading="lazy"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              />
+              <span class="absolute left-0 top-0 bg-iron/85 px-2.5 py-1.5 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-blaze">
+                {project.sector}
+              </span>
+            </div>
+
+            <div class="flex flex-1 flex-col p-5">
+              <h3 class="font-display text-2xl font-semibold uppercase leading-tight tracking-tight text-vellum">
+                {project.name}
+              </h3>
+              <p class="mt-1.5 text-sm text-vellum/60">
+                {project.owner}
+                {project.prime && <span class="block">{project.prime}</span>}
+              </p>
+              <p class="mt-auto pt-4 font-mono text-sm leading-snug text-blaze">
+                {project.stat}
+              </p>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const cards = document.querySelectorAll("[data-projects] > a");
+  if (cards.length) reveal(cards, 0.07);
+</script>

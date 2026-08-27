@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource-variable/public-sans";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@theme {
+  --color-blaze: #f16e38;
+  --color-blaze-deep: #c8541f;
+  --color-iron: #17181c;
+  --color-gunmetal: #23262d;
+  --color-vellum: #efeae0;
+  --color-graphite: #2a2c30;
+  --color-steel: #8b939e;
+
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Public Sans Variable", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--color-iron);
+    color: var(--color-vellum);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-blaze);
+    color: var(--color-iron);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blaze);
+    outline-offset: 3px;
+  }
+}
+
+/* Engineering vernacular ------------------------------------------------- */
+
+/* Drafting hatch, used behind dark sections at low opacity. */
+@utility hatch-bg {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--color-steel) 8%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+/* Warm drafting-paper tint with a faint plotter grid. */
+@utility vellum-texture {
+  background-color: var(--color-vellum);
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--color-steel) 14%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-steel) 14%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 28px 28px;
+}
+
+/* Orange redline that inks in on hover/focus, like a markup pass. */
+@utility redline {
+  background-image: linear-gradient(var(--color-blaze), var(--color-blaze));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+}
+
+@utility redline-on {
+  background-size: 100% 2px;
+}
+
+/* Small uppercase mono label used across title blocks and callouts. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-steel);
+}

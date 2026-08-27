@@ -1,0 +1,45 @@
+---
+import { stats, fmt } from "../data/company";
+---
+
+<section aria-labelledby="numbers-heading" class="bg-gunmetal py-16 sm:py-20">
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <h2
+      id="numbers-heading"
+      class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+    >
+      By the numbers
+    </h2>
+    <p class="mt-3 max-w-[52ch] text-vellum/70">
+      Every figure below is tied to the owner or agency it came from.
+    </p>
+
+    <dl class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        stats.map((stat) => (
+          <div class="bg-gunmetal p-5 sm:p-6">
+            <dd
+              class="font-mono text-[clamp(1.75rem,3.5vw,2.5rem)] font-medium leading-none tracking-tight text-blaze"
+              data-counter
+              data-value={stat.value}
+              data-prefix={stat.prefix ?? ""}
+              data-suffix={stat.suffix ?? ""}
+            >
+              {fmt.stat(stat)}
+            </dd>
+            <dt class="mt-2.5 font-display text-base font-semibold uppercase leading-tight tracking-[0.06em] text-vellum">
+              {stat.label}
+            </dt>
+            <p class="mt-1.5 font-mono text-[0.6875rem] leading-relaxed text-steel">
+              {stat.source}
+            </p>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<script>
+  import "../scripts/counters";
+</script>

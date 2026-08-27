@@ -1,0 +1,43 @@
+---
+import { sectors } from "../data/company";
+---
+
+<section id="capabilities" class="hatch-bg bg-iron py-4">
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <h2
+      class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+    >
+      What we build
+    </h2>
+    <p class="mt-3 max-w-[54ch] text-vellum/70">
+      Self-perform scopes across the Inland Northwest — from deep utility trench
+      to finished lane.
+    </p>
+
+    <div
+      data-sector-grid
+      class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {
+        sectors.map((sector) => (
+          <article class="group relative bg-gunmetal p-6 transition-colors duration-200 hover:bg-graphite sm:p-7">
+            <span class="absolute inset-x-0 top-0 h-0.5 w-0 bg-blaze transition-[width] duration-300 group-hover:w-full" />
+            <h3 class="font-display text-2xl font-semibold uppercase leading-tight tracking-tight text-vellum">
+              {sector.title}
+            </h3>
+            <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-vellum/65">
+              {sector.blurb}
+            </p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const cards = document.querySelectorAll("[data-sector-grid] article");
+  if (cards.length) reveal(cards, 0.05);
+</script>

@@ -1,0 +1,54 @@
+---
+import { certifications } from "../data/company";
+---
+
+<section
+  aria-label="Certifications and bonding"
+  class="relative z-20 border-y border-steel/25 bg-gunmetal"
+>
+  <div
+    class="mx-auto flex max-w-[86rem] flex-wrap items-stretch justify-center gap-x-2 gap-y-1 px-3 py-2 sm:px-8"
+  >
+    {
+      certifications.map((cert) => (
+        <div class="group relative flex-1 basis-[8.5rem]">
+          <button
+            type="button"
+            data-toggletip
+            aria-expanded="false"
+            aria-controls={`tip-${cert.id}`}
+            class="flex w-full flex-col items-center gap-0.5 px-3 py-3 text-center transition-colors duration-200 hover:bg-iron/50 focus-visible:bg-iron/50"
+          >
+            <span class="font-display text-base font-semibold uppercase leading-none tracking-[0.08em] text-vellum">
+              {cert.abbr}
+            </span>
+            <span class="font-mono text-[0.6875rem] leading-none text-blaze">
+              {cert.detail}
+            </span>
+          </button>
+
+          <div
+            id={`tip-${cert.id}`}
+            role="tooltip"
+            class="tip pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-steel/40 bg-iron p-3.5 text-left opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100"
+          >
+            <p class="label-mono mb-1.5 text-blaze">{cert.name}</p>
+            <p class="text-[0.8125rem] leading-relaxed text-vellum/85">
+              {cert.bidMeaning}
+            </p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .tip.is-open {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  import "../scripts/tooltips";
+</script>

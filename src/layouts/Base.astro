@@ -1,0 +1,55 @@
+---
+import "../styles/global.css";
+import { identity } from "../data/company";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#17181C" />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "GeneralContractor",
+        name: identity.legalName,
+        description: identity.positioning,
+        foundingDate: String(identity.founded),
+        telephone: identity.phone,
+        email: identity.email,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: identity.hq.street,
+          addressLocality: identity.hq.city,
+          addressRegion: identity.hq.state,
+          postalCode: identity.hq.zip,
+          addressCountry: "US",
+        },
+        openingHours: "Mo-Fr 07:00-17:00",
+      })}
+    />
+  </head>
+  <body class="bg-iron text-vellum antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-blaze focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:text-iron"
+      >Skip to content</a
+    >
+    <slot />
+  </body>
+</html>

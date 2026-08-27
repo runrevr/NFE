@@ -1,0 +1,131 @@
+---
+import { commendations } from "../data/company";
+---
+
+<section id="safety" class="vellum-texture py-16 text-graphite sm:py-20">
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <p class="label-mono text-blaze-deep">
+      Past performance · USDA Forest Service
+    </p>
+    <h2
+      class="mt-3 max-w-[24ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+    >
+      Rated Exceptional. Twice.
+    </h2>
+
+    <div data-seals class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-14">
+      {
+        commendations.map((item) => (
+          <figure class="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-7">
+            <svg
+              viewBox="0 0 120 120"
+              class="h-24 w-24 shrink-0 sm:h-28 sm:w-28"
+              role="img"
+              aria-label={`${item.rating} rating for ${item.category}, ${item.agency}`}
+            >
+              <defs>
+                <path
+                  id={`arc-top-${item.id}`}
+                  d="M 22 60 A 38 38 0 0 1 98 60"
+                  fill="none"
+                />
+                <path
+                  id={`arc-bottom-${item.id}`}
+                  d="M 26 60 A 34 34 0 0 0 94 60"
+                  fill="none"
+                />
+              </defs>
+              <circle
+                cx="60"
+                cy="60"
+                r="55"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                class="text-graphite/35"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="48"
+                fill="none"
+                stroke="#c8541f"
+                stroke-width="2"
+              />
+              <text
+                class="font-mono"
+                fill="#c8541f"
+                font-size="8.5"
+                letter-spacing="2.4"
+              >
+                <textPath href={`#arc-top-${item.id}`} startOffset="50%" text-anchor="middle">
+                  {item.rating.toUpperCase()}
+                </textPath>
+              </text>
+              <text
+                class="font-mono text-graphite/70"
+                fill="currentColor"
+                font-size="6"
+                letter-spacing="1.6"
+              >
+                <textPath
+                  href={`#arc-bottom-${item.id}`}
+                  startOffset="50%"
+                  text-anchor="middle"
+                >
+                  USDA FOREST SERVICE
+                </textPath>
+              </text>
+              <line
+                x1="34"
+                y1="52"
+                x2="86"
+                y2="52"
+                stroke="#c8541f"
+                stroke-width="0.75"
+              />
+              <line
+                x1="34"
+                y1="70"
+                x2="86"
+                y2="70"
+                stroke="#c8541f"
+                stroke-width="0.75"
+              />
+              <text
+                x="60"
+                y="65"
+                text-anchor="middle"
+                class="font-display"
+                fill="currentColor"
+                font-size="15"
+                font-weight="700"
+                letter-spacing="0.5"
+              >
+                {item.category.toUpperCase()}
+              </text>
+            </svg>
+
+            <div>
+              <blockquote class="font-display text-2xl font-semibold leading-[1.15] tracking-tight text-graphite sm:text-[1.75rem]">
+                “{item.pullQuote}”
+              </blockquote>
+              <figcaption class="mt-3.5 font-mono text-xs leading-relaxed tracking-tight text-graphite/65">
+                {item.attribution}
+                <br />
+                {item.agency} · {item.category} rating: {item.rating}
+              </figcaption>
+            </div>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const figures = document.querySelectorAll("[data-seals] figure");
+  if (figures.length) reveal(figures, 0.08);
+</script>

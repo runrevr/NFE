@@ -1,0 +1,30 @@
+---
+interface Props {
+  station: string;
+  label?: string;
+  tone?: "dark" | "light";
+}
+
+const { station, label, tone = "dark" } = Astro.props;
+
+const line = tone === "dark" ? "bg-steel/30" : "bg-graphite/25";
+const text = tone === "dark" ? "text-steel" : "text-graphite/60";
+const tick = tone === "dark" ? "bg-steel/50" : "bg-graphite/40";
+---
+
+<div class="mx-auto flex max-w-[86rem] items-center gap-3 px-5 py-6 sm:px-8">
+  <span class={`font-mono text-[0.6875rem] tracking-[0.14em] ${text}`}
+    >{station}</span
+  >
+  <span class={`h-3 w-px ${tick}`}></span>
+  <span class={`h-px flex-1 ${line}`}></span>
+  {
+    label && (
+      <span
+        class={`font-mono text-[0.6875rem] uppercase tracking-[0.14em] ${text}`}
+      >
+        {label}
+      </span>
+    )
+  }
+</div>

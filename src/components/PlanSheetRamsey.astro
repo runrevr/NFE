@@ -1,0 +1,213 @@
+---
+/**
+ * Living plan sheet #1 — Ramsey Rd deep gravity sewer section.
+ *
+ * The SVG is authored in its FINISHED state. plan-sheet-ramsey.ts hides and
+ * offsets elements only when motion is allowed, then animates them back, so
+ * reduced-motion and no-JS visitors see the completed drawing immediately.
+ */
+---
+
+<section
+  id="plan-sheet-ramsey"
+  class="vellum-texture border-y border-graphite/15 py-16 text-graphite sm:py-20"
+>
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="label-mono text-blaze-deep">Living plan sheet</p>
+        <h2
+          class="mt-3 max-w-[20ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+        >
+          Ramsey Road, in section
+        </h2>
+      </div>
+
+      <div
+        class="border border-graphite/30 px-4 py-2.5 font-mono text-[0.6875rem] leading-relaxed tracking-tight text-graphite/70"
+      >
+        <div>CITY OF HAYDEN, ID</div>
+        <div>DEEP GRAVITY SEWER MAIN</div>
+        <div class="text-blaze-deep">SHT C-101</div>
+      </div>
+    </div>
+
+    <div class="mt-10 border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+      <svg
+        viewBox="0 0 960 520"
+        class="h-auto w-full"
+        role="img"
+        aria-labelledby="ramsey-title ramsey-desc"
+      >
+        <title id="ramsey-title"
+          >Section view of the Ramsey Road deep gravity sewer main</title
+        >
+        <desc id="ramsey-desc"
+          >Engineering cross-section showing existing grade, an excavated
+          trench with a trench shield, the gravity sewer main set on gravel
+          bedding, and dimension callouts. Over 4,400 linear feet installed for
+          the City of Hayden, Idaho.</desc
+        >
+
+        <defs>
+          <pattern
+            id="ps-earth"
+            width="14"
+            height="14"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line x1="0" y1="0" x2="0" y2="14" stroke="#2a2c30" stroke-opacity="0.16" stroke-width="1"></line>
+          </pattern>
+          <pattern
+            id="ps-gravel"
+            width="9"
+            height="9"
+            patternUnits="userSpaceOnUse"
+          >
+            <circle cx="3" cy="3" r="1.15" fill="#2a2c30" fill-opacity="0.35"></circle>
+            <circle cx="7" cy="7" r="0.85" fill="#2a2c30" fill-opacity="0.28"></circle>
+          </pattern>
+          <marker
+            id="ps-arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="7"
+            markerHeight="7"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c8541f"></path>
+          </marker>
+          <clipPath id="ps-trench-clip">
+            <rect id="ps-excavation-mask" x="330" y="150" width="300" height="300"></rect>
+          </clipPath>
+          <clipPath id="ps-bedding-clip">
+            <rect id="ps-bedding-mask" x="352" y="380" width="256" height="40"></rect>
+          </clipPath>
+        </defs>
+
+        <!-- undisturbed ground -->
+        <g id="ps-ground">
+          <rect x="40" y="150" width="880" height="300" fill="url(#ps-earth)"></rect>
+        </g>
+
+        <!-- the trench void, revealed by growing the clip rect downward -->
+        <g clip-path="url(#ps-trench-clip)">
+          <rect x="330" y="150" width="300" height="300" fill="#efeae0"></rect>
+        </g>
+
+        <!-- existing grade line -->
+        <g id="ps-grade" fill="none" stroke="#2a2c30" stroke-width="2.5">
+          <path d="M 40 150 L 330 150"></path>
+          <path d="M 630 150 L 920 150"></path>
+        </g>
+
+        <!-- trench walls -->
+        <g id="ps-trench" fill="none" stroke="#2a2c30" stroke-width="2">
+          <path d="M 330 150 L 330 450 L 630 450 L 630 150"></path>
+        </g>
+
+        <!-- bedding -->
+        <g clip-path="url(#ps-bedding-clip)">
+          <rect x="352" y="380" width="256" height="40" fill="url(#ps-gravel)"></rect>
+          <rect
+            x="352"
+            y="380"
+            width="256"
+            height="40"
+            fill="none"
+            stroke="#2a2c30"
+            stroke-opacity="0.4"
+            stroke-width="1.25"></rect>
+        </g>
+
+        <!-- trench shield -->
+        <g id="ps-shield" stroke="#2a2c30" stroke-width="2.5" fill="#8b939e" fill-opacity="0.35">
+          <rect x="336" y="215" width="16" height="225"></rect>
+          <rect x="608" y="215" width="16" height="225"></rect>
+          <g stroke-width="4" stroke="#8b939e">
+            <line x1="352" y1="245" x2="608" y2="245"></line>
+            <line x1="352" y1="400" x2="608" y2="400"></line>
+          </g>
+        </g>
+
+        <!-- pipe -->
+        <g id="ps-pipe">
+          <circle cx="480" cy="352" r="30" fill="#efeae0" stroke="#2a2c30" stroke-width="3"></circle>
+          <circle cx="480" cy="352" r="21" fill="none" stroke="#2a2c30" stroke-width="1.5" stroke-opacity="0.5"></circle>
+        </g>
+
+        <!-- dimensions -->
+        <g id="ps-dims" stroke="#c8541f" stroke-width="1.25" fill="none">
+          <path d="M 300 150 L 300 450" marker-start="url(#ps-arrow)" marker-end="url(#ps-arrow)"></path>
+          <path d="M 330 480 L 630 480" marker-start="url(#ps-arrow)" marker-end="url(#ps-arrow)"></path>
+          <g stroke-dasharray="4 4" stroke-opacity="0.5">
+            <path d="M 330 150 L 290 150"></path>
+            <path d="M 330 450 L 290 450"></path>
+            <path d="M 330 450 L 330 490"></path>
+            <path d="M 630 450 L 630 490"></path>
+          </g>
+        </g>
+
+        <!-- callout leaders -->
+        <g id="ps-callouts" stroke="#2a2c30" stroke-width="1.25" fill="none" stroke-opacity="0.65">
+          <path d="M 510 340 L 700 300 L 760 300"></path>
+          <path d="M 624 250 L 700 215 L 760 215"></path>
+          <path d="M 560 398 L 700 385 L 760 385"></path>
+        </g>
+
+        <!-- labels -->
+        <g id="ps-labels" font-family="IBM Plex Mono, monospace" font-size="13" fill="#2a2c30">
+          <text x="765" y="304">GRAVITY SEWER MAIN</text>
+          <text x="765" y="219">TRENCH SHIELD</text>
+          <text x="765" y="389">PIPE BEDDING</text>
+          <text
+            x="288"
+            y="300"
+            fill="#c8541f"
+            text-anchor="end"
+            transform="rotate(-90 288 300)"
+            style="dominant-baseline: central">DEPTH VARIES</text
+          >
+          <text x="480" y="502" fill="#c8541f" text-anchor="middle">TRENCH WIDTH</text>
+          <text x="60" y="196" font-size="12" fill="#2a2c30" fill-opacity="0.55"
+            >EXISTING GRADE</text
+          >
+        </g>
+
+        <!-- running total -->
+        <text
+          id="ps-lf"
+          x="920"
+          y="90"
+          text-anchor="end"
+          font-family="IBM Plex Mono, monospace"
+          font-size="44"
+          font-weight="500"
+          fill="#c8541f">4,400+ LF</text
+        >
+        <text
+          x="920"
+          y="112"
+          text-anchor="end"
+          font-family="IBM Plex Mono, monospace"
+          font-size="11"
+          letter-spacing="1.6"
+          fill="#2a2c30"
+          fill-opacity="0.6">DEEP GRAVITY SEWER MAIN INSTALLED</text
+        >
+      </svg>
+    </div>
+
+    <p class="mt-6 max-w-[62ch] text-[0.9375rem] leading-relaxed text-graphite/75">
+      Over 4,400 linear feet of deep gravity sewer main and 5,500 linear feet of
+      water main for the City of Hayden — shored, bedded, and backfilled to
+      municipal standard.
+    </p>
+  </div>
+</section>
+
+<script>
+  import "../scripts/plan-sheet-ramsey";
+</script>

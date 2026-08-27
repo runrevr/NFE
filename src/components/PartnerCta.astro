@@ -1,0 +1,44 @@
+---
+import { identifiers } from "../data/company";
+---
+
+<section id="bid-room" class="bg-blaze py-14 text-iron sm:py-16">
+  <div
+    class="mx-auto flex max-w-[86rem] flex-col gap-8 px-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between"
+  >
+    <div class="max-w-[46ch]">
+      <h2
+        class="font-display text-[clamp(1.85rem,4vw,3rem)] font-bold uppercase leading-[0.95] tracking-tight"
+      >
+        Bidding a job with DBE goals?
+      </h2>
+      <p class="mt-3 text-lg leading-relaxed text-iron/80">
+        Certifications, bonding, licenses and past performance — everything you
+        need to put NFE on your bid, in 90 seconds.
+      </p>
+
+      <a
+        href="#bid-room"
+        class="mt-7 inline-block border-2 border-iron bg-iron px-6 py-3.5 font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-colors duration-200 hover:bg-transparent hover:text-iron"
+        >Open the bid room</a
+      >
+    </div>
+
+    <dl
+      class="grid shrink-0 grid-cols-2 gap-x-8 gap-y-4 border-l-0 border-t border-iron/25 pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
+    >
+      {
+        identifiers.map((item) => (
+          <div>
+            <dt class="font-mono text-[0.625rem] uppercase tracking-[0.16em] text-iron/60">
+              {item.label}
+            </dt>
+            <dd class="mt-1 font-mono text-base font-medium tracking-tight text-iron">
+              {item.value}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

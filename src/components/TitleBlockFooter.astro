@@ -1,0 +1,118 @@
+---
+import {
+  identity,
+  licenses,
+  identifiers,
+  explosivesLicense,
+} from "../data/company";
+
+const revised = new Date().toISOString().slice(0, 10);
+---
+
+<footer id="contact" class="border-t border-steel/30 bg-iron">
+  <div class="mx-auto max-w-[86rem] px-5 py-12 sm:px-8">
+    <div
+      class="grid gap-px border border-steel/30 bg-steel/25 md:grid-cols-2 lg:grid-cols-4"
+    >
+      <!-- contact -->
+      <div class="bg-iron p-5">
+        <p class="label-mono">Contact</p>
+        <address class="mt-3 not-italic text-[0.9375rem] leading-relaxed text-vellum/85">
+          {identity.hq.street}<br />
+          {identity.hq.city}, {identity.hq.state}
+          {identity.hq.zip}
+        </address>
+        <p class="mt-3 font-mono text-sm text-vellum/85">
+          <a href={identity.phoneHref} class="hover:text-blaze">{identity.phone}</a>
+        </p>
+        <p class="font-mono text-sm text-vellum/85">
+          <a href={`mailto:${identity.email}`} class="hover:text-blaze"
+            >{identity.email}</a
+          >
+        </p>
+        <p class="mt-3 font-mono text-xs text-steel">{identity.hours}</p>
+      </div>
+
+      <!-- licenses -->
+      <div class="bg-iron p-5">
+        <p class="label-mono">Licensed</p>
+        <dl class="mt-3 space-y-2">
+          {
+            licenses.map((license) => (
+              <div class="flex items-baseline justify-between gap-3">
+                <dt class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-vellum/75">
+                  {license.state}
+                </dt>
+                <dd class="font-mono text-xs tracking-tight text-vellum/85">
+                  {license.number}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <!-- identifiers -->
+      <div class="bg-iron p-5">
+        <p class="label-mono">Federal</p>
+        <dl class="mt-3 space-y-2">
+          {
+            identifiers.map((item) => (
+              <div class="flex items-baseline justify-between gap-3">
+                <dt class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-vellum/75">
+                  {item.label}
+                </dt>
+                <dd class="font-mono text-xs tracking-tight text-vellum/85">
+                  {item.value}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+        <p class="mt-3 border-t border-steel/25 pt-3 font-mono text-[0.6875rem] leading-relaxed text-steel">
+          {explosivesLicense.label}<br />
+          <span class="text-blaze">{explosivesLicense.value}</span>
+        </p>
+      </div>
+
+      <!-- sheet -->
+      <div class="flex flex-col bg-iron p-5">
+        <p class="label-mono">Drawing</p>
+        <div class="mt-3 flex items-baseline gap-2.5">
+          <span class="font-display text-3xl font-bold leading-none text-blaze"
+            >{identity.initials}</span
+          >
+          <span
+            class="font-display text-xs font-semibold uppercase leading-tight tracking-[0.14em] text-vellum/70"
+            >North Fork<br />Enterprises, LLC</span
+          >
+        </div>
+        <dl class="mt-auto space-y-1.5 pt-5 font-mono text-[0.6875rem] text-steel">
+          <div class="flex justify-between gap-3">
+            <dt>SHEET</dt>
+            <dd class="text-vellum/80">1 OF 1</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt>REV</dt>
+            <dd class="text-vellum/80">A</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt>REVISED</dt>
+            <dd class="text-vellum/80">{revised}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <div
+      class="mt-6 flex flex-wrap items-center justify-between gap-3 font-mono text-[0.6875rem] tracking-tight text-steel"
+    >
+      <p>
+        © {new Date().getFullYear()} {identity.legalName} · NAICS {identity.naics} — {
+          identity.naicsLabel
+        }
+      </p>
+      <p>Woman-owned · HUBZone · DBE certified ID · WA · OR</p>
+    </div>
+  </div>
+</footer>

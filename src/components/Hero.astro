@@ -1,0 +1,97 @@
+---
+import { Image } from "astro:assets";
+import heroPoster from "../assets/photos/hero-poster.jpg";
+import { identity } from "../data/company";
+---
+
+<section class="relative isolate flex min-h-[88svh] items-end overflow-hidden">
+  <Image
+    src={heroPoster}
+    alt="North Fork Enterprises excavator working atop a block retaining wall under a winter sky."
+    widths={[640, 1280, 1920]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    class="absolute inset-0 -z-20 h-full w-full object-cover"
+  />
+
+  {/* Sources are injected by script only when the video is ready and motion
+      is allowed, so mobile and reduced-motion visitors never fetch it. */}
+  <video
+    data-hero-video
+    muted
+    loop
+    playsinline
+    preload="none"
+    aria-hidden="true"
+    class="absolute inset-0 -z-10 h-full w-full object-cover opacity-0 transition-opacity duration-700"
+  ></video>
+
+  <div
+    class="absolute inset-0 -z-10 bg-gradient-to-t from-iron via-iron/70 to-iron/25"
+  >
+  </div>
+  <div class="absolute inset-0 -z-10 bg-blaze/5 mix-blend-overlay"></div>
+
+  <div class="mx-auto w-full max-w-[86rem] px-5 pb-16 pt-32 sm:px-8 sm:pb-20">
+    <p class="label-mono mb-5 text-blaze">
+      Heavy civil · Pinehurst, Idaho · Est. {identity.founded}
+    </p>
+
+    <h1
+      class="max-w-[18ch] font-display text-[clamp(2.75rem,8vw,6.5rem)] font-bold uppercase leading-[0.92] tracking-tight text-vellum"
+    >
+      We build what the Northwest drives on.
+    </h1>
+
+    <p class="mt-6 max-w-[52ch] text-base leading-relaxed text-vellum/80 sm:text-lg">
+      {identity.positioning}
+    </p>
+
+    <div class="mt-9 flex flex-wrap items-center gap-3.5">
+      <a
+        href="#projects"
+        class="bg-blaze px-6 py-3.5 font-display text-base font-semibold uppercase tracking-[0.1em] text-iron transition-colors duration-200 hover:bg-vellum"
+        >See our work</a
+      >
+      <a
+        href="#bid-room"
+        class="border border-vellum/35 px-6 py-3.5 font-display text-base font-semibold uppercase tracking-[0.1em] text-vellum transition-colors duration-200 hover:border-vellum hover:bg-vellum/10"
+        >Get our capability statement</a
+      >
+    </div>
+  </div>
+</section>
+
+<script>
+  import { motionOK } from "../scripts/motion";
+
+  /* Flip to true once /public/hero/hero.mp4 + hero.webm exist.
+     See public/hero/README.md for the delivery spec. */
+  const HERO_VIDEO_READY = false;
+
+  const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
+  const wideEnough = window.matchMedia("(min-width: 768px)").matches;
+
+  if (video && HERO_VIDEO_READY && motionOK && wideEnough) {
+    for (const [src, type] of [
+      ["/hero/hero.webm", "video/webm"],
+      ["/hero/hero.mp4", "video/mp4"],
+    ]) {
+      const source = document.createElement("source");
+      source.src = src;
+      source.type = type;
+      video.appendChild(source);
+    }
+
+    video.muted = true;
+    video.load();
+    video.addEventListener(
+      "canplay",
+      () => video.classList.replace("opacity-0", "opacity-100"),
+      { once: true },
+    );
+    // Autoplay refusal is fine — the poster is already the design.
+    video.play().catch(() => {});
+  }
+</script>
