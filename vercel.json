@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "comment": "This is a pitch prototype for a real business. Until NFE approves it and it moves to their own domain, nothing here may be indexed: an indexed draft would compete with nfenterprises.co in search and would publish figures we have not yet verified with them. Note we deliberately do NOT block crawling in robots.txt — a disallowed crawler never fetches the page, so it never sees this header, and the URL can still surface from an inbound link.",
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    }
+  ]
+}
