@@ -5,9 +5,11 @@ import { identity } from "../data/company";
 ---
 
 <section class="relative isolate flex min-h-[88svh] items-end overflow-hidden">
+  {/* First frame of the hero video, so the handoff to it is invisible. This
+      is also the permanent fallback on mobile and for reduced motion. */}
   <Image
     src={heroPoster}
-    alt="North Fork Enterprises excavator working atop a block retaining wall under a winter sky."
+    alt="A completed girder bridge spanning a river through pine forest at golden hour."
     widths={[640, 1280, 1920]}
     sizes="100vw"
     loading="eager"
@@ -70,7 +72,7 @@ import { identity } from "../data/company";
 
   /* Flip to true once /public/hero/hero.mp4 + hero.webm exist.
      See public/hero/README.md for the delivery spec. */
-  const HERO_VIDEO_READY = false;
+  const HERO_VIDEO_READY = true;
 
   const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
   const wideEnough = window.matchMedia("(min-width: 768px)").matches;
