@@ -153,8 +153,12 @@ const cellWide =
     </div>
   </section>
 
-  <!-- living plan sheet ---------------------------------------------------- -->
-  {PlanSheet && <PlanSheet />}
+  <!--
+    Living plan sheet. `caption` is only read by PlanSheetRamsey, whose caption
+    is this project's own scope text — already printed above on this page.
+    The other sheets ignore the prop.
+  -->
+  {PlanSheet && <PlanSheet caption={false} />}
 
   <!-- quantities ---------------------------------------------------------- -->
   {

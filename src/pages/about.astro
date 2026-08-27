@@ -99,14 +99,22 @@ const facts = [
 
   <StationDivider station="STA 1+00" label="Values" />
 
-  <!-- Values, as a jobsite banner ----------------------------------------- -->
+  <!--
+    Values, set like a jobsite banner. The treatment echoes one; the copy must
+    not claim to reproduce one. company.ts records two different sets — these
+    four (about.values) and the three actually printed on the banner per
+    safety.program[0]: Safety, Excellence, Integrity. Only "Integrity" is common
+    to both, so a heading like "What the banner says" here put the site in
+    direct contradiction with /safety. Confirm with NFE which set is current
+    before tying this section to the physical banner again.
+  -->
   <section aria-labelledby="values-heading" class="bg-iron pb-16 sm:pb-20">
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <h2
         id="values-heading"
         class="font-display text-[clamp(2rem,4.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-vellum"
       >
-        What the banner says
+        What we hold to
       </h2>
 
       <div

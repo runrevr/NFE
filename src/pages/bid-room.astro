@@ -99,6 +99,11 @@ const contents = [
   { href: "#capability-summary", label: "Capability summary" },
 ];
 
+/* The build date, used only as the no-JS fallback for the printed summary's
+   date line. It is labelled "Printed", not "Issued": this is not a date NFE
+   reviewed or approved anything on, and on a static site an "Issued" stamp
+   would sit unchanged in an estimator's bid file long after it went stale.
+   A script below replaces it with the reader's actual date at load. */
 const issued = new Date().toISOString().slice(0, 10);
 
 const description = `Copy-ready UEI, CAGE, DUNS and state license numbers, federal certifications, ${fmt.money(
@@ -474,19 +479,22 @@ const description = `Copy-ready UEI, CAGE, DUNS and state license numbers, feder
       </p>
 
       <!--
-        TODO — endpoint not configured. Each form below posts to the placeholder
-        /api/bid-request, which does not exist yet. Point the action at NFE's
-        real handler (an Astro endpoint, Netlify Forms, or a form service) and
-        keep the hidden `subject` field: it is what routes the request. Until
-        then the email and phone fallback under this grid is the live path.
+        No request handler is configured, so each form composes a pre-filled
+        email instead of posting. These used to point at /api/bid-request, a
+        route that does not exist and returned 404 on every submission — an
+        estimator asking for a bonding letter got nothing, and no one was told.
+
+        When NFE has a real handler (an Astro endpoint, Netlify Forms, or a form
+        service): set `action` and `method`, drop `data-mailto-form`, and keep
+        the hidden `subject` field — it is what routes the request.
       -->
       <div class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2">
         {
           bidRequests.map((request) => (
             <form
               class="bg-gunmetal p-6 sm:p-7"
-              method="post"
-              action="/api/bid-request"
+              data-mailto-form={identity.email}
+              data-mailto-subject={request.subject}
               aria-labelledby={`req-${request.id}-title`}
             >
               <input type="hidden" name="subject" value={request.subject} />
@@ -599,7 +607,7 @@ const description = `Copy-ready UEI, CAGE, DUNS and state license numbers, feder
               {identity.positioning}
             </p>
             <p class="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
-              Capability summary · Issued {issued}
+              Capability summary · Printed <span data-printed-on>{issued}</span>
             </p>
           </div>
 
@@ -918,6 +926,17 @@ const description = `Copy-ready UEI, CAGE, DUNS and state license numbers, feder
 
 <script>
   import { reveal } from "../scripts/motion";
+  import { wireMailtoForms } from "../scripts/forms";
+
+  wireMailtoForms();
+
+  /* The printed summary's date should be the day the estimator prints it, not
+     the day the site was built. Server-rendered build date is the no-JS
+     fallback. */
+  const printedOn = document.querySelector("[data-printed-on]");
+  if (printedOn) {
+    printedOn.textContent = new Date().toISOString().slice(0, 10);
+  }
 
   /* --- copy chips ------------------------------------------------------ */
 

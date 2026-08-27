@@ -50,7 +50,10 @@ const stiffeners = Array.from({ length: 7 }, (_, i) => ({
   x: 272 + ((i + 1) * 416) / 8,
 }));
 
-/** Four timber bents in the channel, each drawn member by member. */
+/* Timber bents in the channel, each drawn member by member. The count is
+   indicative only — company.ts records that a timber bridge and its abutments
+   were removed, but not how many bents it stood on. The accessible description
+   says so; do not state a number here or in the callouts. */
 const BENTS = [361, 441, 521, 601];
 const timber: string[] = [
   `M 250 262 L 712 262`,
@@ -93,10 +96,10 @@ const wave = (y: number, amp: number) =>
       </div>
     </div>
 
-    <div class="mt-10 border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+    <div class="mt-10 overflow-x-auto border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
       <svg
         viewBox="0 0 960 470"
-        class="h-auto w-full"
+        class="h-auto w-full min-w-[48rem]"
         role="img"
         aria-labelledby="bridge-swap-title bridge-swap-desc"
       >
@@ -105,10 +108,11 @@ const wave = (y: number, amp: number) =>
         >
         <desc id="bridge-swap-desc"
           >Bridge elevation, not to scale. The removed timber trestle and its
-          four channel bents are shown ghosted; the new structure is a single
-          steel span carried on new abutments, with deck panels and rail set
-          above the girder. Span and vehicle loading are called out from the
-          project record.</desc
+          channel bents are shown ghosted; the new structure is a single steel
+          span carried on new abutments, with deck panels and rail set above the
+          girder. Span and vehicle loading are called out from the project
+          record; the trestle is drawn indicatively, as its bent count is not in
+          the project record.</desc
         >
 
         <defs>

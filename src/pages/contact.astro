@@ -195,14 +195,18 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
         </p>
 
         <!--
-          LAUNCH BLOCKER: the action below is a placeholder. Create the form
-          endpoint (Formspree or equivalent), paste the real ID in, and test a
-          live submission before this page ships. Until then the form posts
-          nowhere. The email routes above still work.
+          No form service is configured yet, so this composes a pre-filled email
+          rather than posting anywhere. That is deliberate: the previous
+          placeholder action pointed at formspree.io, a live host, so a bid
+          invitation left the site and failed there instead of failing here —
+          the one outcome worse than having no form at all.
+
+          When NFE has a real endpoint: set `action` and `method`, drop
+          `data-mailto-form`, and test a live submission before launch.
         -->
         <form
-          method="POST"
-          action="https://formspree.io/f/REPLACE-WITH-FORM-ID"
+          data-mailto-form={identity.email}
+          data-mailto-subject="Bid invitation — website"
           class="mt-10"
         >
           <!-- Pre-tags the subject line so NFE can route without reading the body. -->
@@ -333,6 +337,26 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
               Office hours {identity.hours}.
             </p>
           </div>
+
+          <p
+            data-form-status
+            hidden
+            role="status"
+            class="mt-5 border-l-2 border-blaze-deep bg-graphite/5 py-3 pl-4 font-mono text-[0.8125rem] leading-relaxed text-graphite"
+          >
+          </p>
+
+          <noscript>
+            <p
+              class="mt-5 border-l-2 border-blaze-deep bg-graphite/5 py-3 pl-4 font-mono text-[0.8125rem] leading-relaxed text-graphite"
+            >
+              This form needs JavaScript to send. Email <a
+                class="border-b-2 border-blaze-deep/30 text-blaze-deep hover:border-blaze-deep"
+                href={`mailto:${identity.email}?subject=${encodeURIComponent("Bid invitation — website")}`}
+                >{identity.email}</a
+              > directly and we will pick it up the same way.
+            </p>
+          </noscript>
         </form>
       </div>
     </div>
@@ -404,7 +428,10 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
 
 <script>
   import { reveal } from "../scripts/motion";
+  import { wireMailtoForms } from "../scripts/forms";
 
   const cards = document.querySelectorAll("[data-routes] > article");
   if (cards.length) reveal(cards, 0.06);
+
+  wireMailtoForms();
 </script>

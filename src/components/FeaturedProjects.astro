@@ -27,7 +27,7 @@ const photos: Record<string, ImageMetadata> = {
         </p>
       </div>
       <a
-        href="#projects"
+        href="/projects"
         class="redline font-display text-sm font-semibold uppercase tracking-[0.12em] text-blaze transition-[background-size] duration-200 hover:redline-on"
         >All projects →</a
       >
@@ -37,7 +37,7 @@ const photos: Record<string, ImageMetadata> = {
       {
         featuredProjects.map((project) => (
           <a
-            href={`#projects`}
+            href={`/projects/${project.slug}`}
             class="group flex flex-col border border-steel/20 bg-gunmetal transition-colors duration-200 hover:border-blaze/60"
           >
             <div class="relative aspect-[4/3] overflow-hidden">
@@ -63,7 +63,7 @@ const photos: Record<string, ImageMetadata> = {
                 {project.prime && <span class="block">{project.prime}</span>}
               </p>
               <p class="mt-auto pt-4 font-mono text-sm leading-snug text-blaze">
-                {project.stat}
+                {project.headline}
               </p>
             </div>
           </a>

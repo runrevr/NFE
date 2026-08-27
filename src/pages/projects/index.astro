@@ -130,7 +130,7 @@ const facetButton =
                   <div class="flex h-full w-full items-end p-5 pb-8 pr-16">
                     <span
                       aria-hidden="true"
-                      class="font-display text-[clamp(1.9rem,7vw,2.6rem)] font-bold uppercase leading-[0.88] tracking-tight text-vellum/35"
+                      class="font-display text-[clamp(1.9rem,7vw,2.6rem)] font-bold uppercase leading-[0.88] tracking-tight text-vellum/45"
                     >
                       {project.sector}
                     </span>
@@ -194,19 +194,34 @@ const facetButton =
   const countEl = document.querySelector<HTMLElement>("[data-project-count]");
   const emptyEl = document.querySelector<HTMLElement>("[data-project-empty]");
 
+  /* The map sits below the grid and carries the same facet attributes. Without
+     this, filtering to Bridges left three cards above twelve pins — two
+     different answers to "how many jobs" on one screen. */
+  const pins = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-map-pin]"),
+  );
+
+  const matches = (el: HTMLElement) =>
+    (state.sector === "all" || el.dataset.sector === state.sector) &&
+    (state.owner === "all" || el.dataset.ownerType === state.owner);
+
   if (cards.length && buttons.length) {
     const apply = () => {
       let shown = 0;
 
       for (const card of cards) {
-        const okSector =
-          state.sector === "all" || card.dataset.sector === state.sector;
-        const okOwner =
-          state.owner === "all" || card.dataset.ownerType === state.owner;
-        const visible = okSector && okOwner;
-
+        const visible = matches(card);
         card.hidden = !visible;
         if (visible) shown += 1;
+      }
+
+      for (const pin of pins) {
+        const visible = matches(pin);
+        pin.hidden = !visible;
+        // A hidden pin must not keep an open card or stay tabbable.
+        if (!visible && pin.getAttribute("aria-expanded") === "true") {
+          pin.click();
+        }
       }
 
       if (countEl) {

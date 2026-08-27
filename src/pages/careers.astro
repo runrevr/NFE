@@ -11,12 +11,16 @@ import Page from "../layouts/Page.astro";
 import crew from "../assets/photos/careers-crew.jpg";
 import { identity, openRoles, benefits } from "../data/company";
 
-/**
- * The real limits on the current application inbox. These are attachment
- * limits, not company facts, so they do not live in company.ts yet — see the
- * note in the build report. If they change, change them here.
- */
-const attachmentLimits = { perFile: "10MB", total: "15MB" } as const;
+/* Attachment size limits used to be stated here as "10MB per attachment, 15MB
+   total". They were removed: they described a form service that has never been
+   configured, so they were a number with no source — exactly what this project
+   forbids. State them again once a real endpoint exists and imposes them. */
+
+/* The hero headline is the biggest type on the page, so pick it by content
+   rather than by position — `benefits[3]` would silently become "401(k)
+   company match" the moment anyone reorders the array. */
+const heroBenefit =
+  benefits.find((b) => b.startsWith("Prevailing wage")) ?? benefits[0];
 
 /** The apply-anyway path, offered in the role list itself. */
 const GENERAL_APPLICATION = "Not listed — general application";
@@ -54,7 +58,7 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
         <p
           class="max-w-[16ch] font-display text-[clamp(1.75rem,5.5vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-tight text-vellum"
         >
-          {benefits[3]}
+          {heroBenefit}
         </p>
       </div>
     </div>
@@ -177,17 +181,20 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
         </p>
 
         <!--
-          LAUNCH BLOCKER: the action below is a placeholder. Create the form
-          endpoint (Formspree or equivalent, on a plan that accepts file
-          uploads), paste the real ID in, and test a live submission with an
-          attachment before this page ships. Applications must land at
-          identity.email exactly as they do today. Until then the form posts
-          nowhere and the mailto fallback below is the working path.
+          No form service is configured yet, so this composes a pre-filled email
+          rather than posting anywhere. The previous placeholder action pointed
+          at formspree.io, a live host — an application would have left the site
+          and failed there, silently dropping someone looking for work.
+
+          A mailto cannot carry the file itself, so the résumé field puts the
+          chosen filename in the body and asks the applicant to attach it. When
+          NFE has a real endpoint (on a plan that accepts uploads): set `action`,
+          `method` and `enctype`, drop `data-mailto-form`, and test a live
+          submission with an attachment.
         -->
         <form
-          method="POST"
-          action="https://formspree.io/f/REPLACE-WITH-FORM-ID"
-          enctype="multipart/form-data"
+          data-mailto-form={identity.email}
+          data-mailto-subject="Job application — website"
           class="mt-10"
         >
           <input type="hidden" name="_subject" value="Job application — website" />
@@ -278,15 +285,12 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
                 class="mt-2 block w-full min-w-0 border border-graphite/60 bg-vellum px-3.5 py-3 font-mono text-[0.8125rem] text-graphite file:mr-3 file:border-0 file:bg-graphite file:px-4 file:py-2 file:font-display file:text-sm file:font-semibold file:uppercase file:tracking-[0.08em] file:text-vellum hover:border-graphite focus:border-blaze-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blaze-deep"
               />
               <p id="apply-resume-hint" class={hintClass}>
-                Optional.{" "}
-                <span class="font-mono">{attachmentLimits.perFile}</span>{" "}
-                per attachment,{" "}
-                <span class="font-mono">{attachmentLimits.total}</span>{" "}
-                total. A photo of a paper resume is fine. Bigger than that, or no
-                resume at all — email{" "}
+                Optional. A photo of a paper resume is fine. Pick the file here
+                and we will name it in your email — attach it before you send.
+                No resume at all is fine too: email{" "}
                 <a
                   href={`mailto:${identity.email}?subject=${encodeURIComponent("Job application")}`}
-                  class="redline font-mono text-blaze-deep transition-[background-size] duration-200 hover:redline-on"
+                  class="border-b-2 border-blaze-deep/30 font-mono text-blaze-deep transition-colors duration-200 hover:border-blaze-deep"
                   >{identity.email}</a
                 > and we will take it from there.
               </p>
@@ -304,6 +308,26 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
               <span aria-hidden="true" class="text-blaze-deep">*</span> Required.
               Applications go to {identity.email}.
             </p>
+
+            <p
+              data-form-status
+              hidden
+              role="status"
+              class="mt-5 border-l-2 border-blaze-deep bg-graphite/5 py-3 pl-4 font-mono text-[0.8125rem] leading-relaxed text-graphite"
+            >
+            </p>
+
+            <noscript>
+              <p
+                class="mt-5 border-l-2 border-blaze-deep bg-graphite/5 py-3 pl-4 font-mono text-[0.8125rem] leading-relaxed text-graphite"
+              >
+                This form needs JavaScript to send. Email <a
+                  class="border-b-2 border-blaze-deep/30 text-blaze-deep hover:border-blaze-deep"
+                  href={`mailto:${identity.email}?subject=${encodeURIComponent("Job application")}`}
+                  >{identity.email}</a
+                > with your name, phone and the trade you are after.
+              </p>
+            </noscript>
           </div>
         </form>
       </div>
@@ -356,10 +380,13 @@ const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
 
 <script>
   import { reveal } from "../scripts/motion";
+  import { wireMailtoForms } from "../scripts/forms";
 
   const roles = document.querySelectorAll("[data-roles] > li");
   if (roles.length) reveal(roles, 0.06);
 
   const perks = document.querySelectorAll("[data-benefits] > li");
   if (perks.length) reveal(perks, 0.05);
+
+  wireMailtoForms();
 </script>

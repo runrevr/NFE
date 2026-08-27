@@ -6,6 +6,21 @@
  * offsets elements only when motion is allowed, then animates them back, so
  * reduced-motion and no-JS visitors see the completed drawing immediately.
  */
+import { projects } from "../data/company";
+
+interface Props {
+  /**
+   * The caption repeats the project's scope. That reads well on the homepage,
+   * where the scope appears nowhere else, but the detail page already prints
+   * it a few hundred pixels above — so /projects/ramsey-rd passes false and
+   * the same sentence stops appearing twice on one screen.
+   */
+  caption?: boolean;
+}
+
+const { caption = true } = Astro.props;
+
+const job = projects.find((p) => p.slug === "ramsey-rd");
 ---
 
 <section
@@ -29,10 +44,10 @@
       </div>
     </div>
 
-    <div class="mt-10 border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+    <div class="mt-10 overflow-x-auto border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
       <svg
         viewBox="0 0 960 520"
-        class="h-auto w-full"
+        class="h-auto w-full min-w-[48rem]"
         role="img"
         aria-labelledby="ramsey-title ramsey-desc"
       >
@@ -197,11 +212,13 @@
       </svg>
     </div>
 
-    <p class="mt-6 max-w-[62ch] text-[0.9375rem] leading-relaxed text-graphite/75">
-      Over 4,400 linear feet of deep gravity sewer main and 5,500 linear feet of
-      water main for the City of Hayden — shored, bedded, and backfilled to
-      municipal standard.
-    </p>
+    {
+      caption && job && (
+        <p class="mt-6 max-w-[62ch] text-[0.9375rem] leading-relaxed text-graphite/75">
+          {job.scope}
+        </p>
+      )
+    }
   </div>
 </section>
 
