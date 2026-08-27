@@ -1,0 +1,384 @@
+---
+/**
+ * Living plan sheet #4 — Sullivan Road, exploded roadway section
+ * (blueprint §9.2.4).
+ *
+ * A typical section drawn without dimensions on purpose: NFE has published a
+ * contract value and a lane count for this job and nothing else, so the sheet
+ * carries those two figures and labels every layer generically. The keynote
+ * bubbles are numbered on the drawing and spelled out in the legend beneath,
+ * which keeps the words legible at any width.
+ *
+ * The SVG is authored assembled. plan-sheet-roadway.ts explodes the layers
+ * only when motion is allowed, then drops them back into place.
+ */
+import { projects, stats } from "../data/company";
+
+const job = projects.find((p) => p.slug === "sullivan-road");
+const laneStat = stats.find((s) => s.id === "lanes");
+
+type Quantity = { label: string; value: string };
+const quantities: ReadonlyArray<Quantity> = job?.quantities ?? [];
+const q = (label: string) => quantities.find((item) => item.label === label);
+
+const lanes = laneStat?.value ?? 0;
+const contractValue = q("Contract value")?.value ?? null;
+const laneLabel = laneStat?.label ?? "Lanes of roadway replaced";
+
+/* ---------------------------------------------------------------------------
+ * Section geometry. Deliberately undimensioned — layer thicknesses here are
+ * drawing proportions, not published quantities.
+ * ------------------------------------------------------------------------ */
+const PAVE_X0 = 172;
+const PAVE_X1 = 788;
+const PAVE_W = PAVE_X1 - PAVE_X0;
+const laneW = lanes > 0 ? PAVE_W / lanes : PAVE_W;
+
+const laneCells = Array.from({ length: lanes }, (_, i) => ({
+  i,
+  center: PAVE_X0 + laneW * (i + 0.5),
+}));
+
+const laneJoints = Array.from({ length: Math.max(lanes - 1, 0) }, (_, i) => ({
+  i,
+  x: PAVE_X0 + laneW * (i + 1),
+}));
+
+/** Detectable-warning domes on the ADA ramp landing. */
+const domes = Array.from({ length: 9 }, (_, i) => ({
+  i,
+  x: 832 + i * 7.5,
+}));
+
+/** Keynotes: numbered on the drawing, named in the legend below. */
+const keynotes = [
+  { n: 1, name: "Prepared subgrade", cx: 300, cy: 371, leader: null },
+  { n: 2, name: "Aggregate base", cx: 400, cy: 334, leader: null },
+  { n: 3, name: "Asphalt pavement", cx: 500, cy: 307, leader: null },
+  {
+    n: 4,
+    name: "Curb, gutter, sidewalk & ADA ramp",
+    cx: 866,
+    cy: 236,
+    leader: "M 866 253 L 866 264",
+  },
+  {
+    n: 5,
+    name: "Storm structure",
+    cx: 72,
+    cy: 440,
+    leader: "M 89 434 L 116 414",
+  },
+  {
+    n: 6,
+    name: "ITS conduit",
+    cx: 790,
+    cy: 402,
+    leader: "M 806 396 L 840 358",
+  },
+  {
+    n: 7,
+    name: "Traffic signal",
+    cx: 566,
+    cy: 106,
+    leader: "M 583 110 L 620 128",
+  },
+] as const;
+---
+
+<section
+  id="plan-sheet-roadway"
+  class="plan-grid border-y border-graphite/15 py-16 text-graphite sm:py-20"
+>
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2
+        class="max-w-[20ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+      >
+        Exploded roadway
+      </h2>
+
+      <div
+        class="border border-graphite/30 px-4 py-2.5 font-mono text-[0.6875rem] leading-relaxed tracking-tight text-graphite/70"
+      >
+        {job?.owner && <div>{job.owner.toUpperCase()}</div>}
+        {job?.name && <div>{job.name.toUpperCase()}</div>}
+        <div>TYPICAL SECTION</div>
+        <div class="text-blaze-deep">SHT C-104</div>
+      </div>
+    </div>
+
+    <div class="mt-10 border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+      <svg
+        viewBox="0 0 960 500"
+        class="h-auto w-full"
+        role="img"
+        aria-labelledby="roadway-title roadway-desc"
+      >
+        <title id="roadway-title"
+          >Typical section of the Sullivan Road arterial rebuild</title
+        >
+        <desc id="roadway-desc"
+          >Roadway cross-section, not to scale, built up in layers: prepared
+          subgrade, aggregate base, asphalt pavement carrying {lanes} lanes,
+          curb and gutter with sidewalk and an ADA ramp landing, a storm
+          structure with its outfall pipe, an ITS conduit duct bank, and a
+          traffic signal on a mast arm. Numbered keynotes are listed beneath
+          the drawing.</desc
+        >
+
+        <defs>
+          <pattern
+            id="pr-earth"
+            width="14"
+            height="14"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line x1="0" y1="0" x2="0" y2="14" stroke="#2a2c30" stroke-opacity="0.14" stroke-width="1"></line>
+          </pattern>
+          <pattern id="pr-gravel" width="9" height="9" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="3" r="1.15" fill="#2a2c30" fill-opacity="0.35"></circle>
+            <circle cx="7" cy="7" r="0.85" fill="#2a2c30" fill-opacity="0.28"></circle>
+          </pattern>
+          <pattern
+            id="pr-subgrade-hatch"
+            width="12"
+            height="12"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(-45)"
+          >
+            <line x1="0" y1="0" x2="0" y2="12" stroke="#2a2c30" stroke-opacity="0.22" stroke-width="1.2"></line>
+          </pattern>
+          <pattern id="pr-concrete" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="3" r="1.1" fill="#2a2c30" fill-opacity="0.28"></circle>
+            <circle cx="7.5" cy="7" r="0.8" fill="#2a2c30" fill-opacity="0.22"></circle>
+          </pattern>
+        </defs>
+
+        <!-- native ground -->
+        <rect x="40" y="392" width="880" height="60" fill="url(#pr-earth)"></rect>
+        <g fill="none" stroke="#2a2c30" stroke-width="2" stroke-opacity="0.45">
+          <path d="M 40 274 L 60 274"></path>
+          <path d="M 900 274 L 920 274"></path>
+        </g>
+
+        <!-- 1 · prepared subgrade -->
+        <g id="pr-subgrade" stroke="#2a2c30" stroke-width="2">
+          <rect x="110" y="350" width="740" height="42" fill="url(#pr-subgrade-hatch)"></rect>
+        </g>
+
+        <!-- 2 · aggregate base -->
+        <g id="pr-base" stroke="#2a2c30" stroke-width="2">
+          <rect x="126" y="318" width="708" height="32" fill="url(#pr-gravel)"></rect>
+        </g>
+
+        <!-- 3 · asphalt -->
+        <g id="pr-asphalt" stroke="#2a2c30" stroke-width="2">
+          <rect
+            x={PAVE_X0}
+            y="296"
+            width={PAVE_W}
+            height="22"
+            fill="#2a2c30"
+            fill-opacity="0.82"></rect>
+        </g>
+
+        <!-- lane assignment -->
+        <g id="pr-lanes">
+          <g fill="#a84214">
+            {
+              laneJoints.map((j) => (
+                <rect
+                  class="pr-joint"
+                  x={(j.x - 9).toFixed(1)}
+                  y="292"
+                  width="18"
+                  height="4"
+                />
+              ))
+            }
+          </g>
+          <g
+            font-family="IBM Plex Mono, monospace"
+            font-size="14"
+            fill="#2a2c30"
+            fill-opacity="0.75"
+            text-anchor="middle"
+          >
+            {
+              laneCells.map((c) => (
+                <text class="pr-lane-label" x={c.center.toFixed(1)} y="286">
+                  LANE {c.i + 1}
+                </text>
+              ))
+            }
+          </g>
+        </g>
+
+        <!-- 4 · curb, gutter, sidewalk, ADA landing -->
+        <g id="pr-concrete" stroke="#2a2c30" stroke-width="2.5" fill="url(#pr-concrete)">
+          <rect x="60" y="264" width="74" height="10"></rect>
+          <path d="M 134 264 L 152 264 L 152 288 L 172 296 L 172 306 L 134 306 Z"></path>
+          <path d="M 826 264 L 808 264 L 808 288 L 788 296 L 788 306 L 826 306 Z"></path>
+          <rect x="826" y="264" width="74" height="10"></rect>
+          <g fill="#2a2c30" fill-opacity="0.55" stroke="none">
+            {
+              domes.map((d) => (
+                <path d={`M ${d.x.toFixed(1)} 264 a 3 3 0 0 1 6 0 z`} />
+              ))
+            }
+          </g>
+          <rect x="152" y="272" width="7" height="16" fill="#2a2c30" fill-opacity="0.8" stroke="none"></rect>
+        </g>
+
+        <!-- 5 · storm structure -->
+        <g id="pr-storm" stroke="#2a2c30" stroke-width="2.5" fill="#efeae0">
+          <rect x="44" y="372" width="74" height="24"></rect>
+          <rect x="116" y="306" width="54" height="120"></rect>
+          <g stroke-width="1.5" stroke-opacity="0.5">
+            <line x1="124" y1="330" x2="162" y2="330"></line>
+            <line x1="124" y1="354" x2="162" y2="354"></line>
+            <line x1="124" y1="378" x2="162" y2="378"></line>
+          </g>
+        </g>
+
+        <!-- 6 · ITS conduit -->
+        <g id="pr-its" stroke="#2a2c30" stroke-width="2" fill="#efeae0">
+          <rect x="838" y="330" width="62" height="32" stroke-dasharray="5 4"></rect>
+          <g fill="#8b939e" fill-opacity="0.5">
+            <circle cx="854" cy="346" r="7"></circle>
+            <circle cx="872" cy="346" r="7"></circle>
+            <circle cx="890" cy="346" r="7"></circle>
+          </g>
+        </g>
+
+        <!-- 7 · traffic signal -->
+        <g id="pr-signal" stroke="#2a2c30" stroke-width="2" fill="#8b939e" fill-opacity="0.55">
+          <rect x="878" y="118" width="9" height="146"></rect>
+          <rect x="620" y="126" width="262" height="8"></rect>
+          <g fill="#efeae0" fill-opacity="1">
+            <rect x="631" y="134" width="18" height="44"></rect>
+            <rect x="731" y="134" width="18" height="44"></rect>
+          </g>
+          <g fill="#2a2c30" fill-opacity="0.6" stroke="none">
+            <circle cx="640" cy="144" r="4"></circle>
+            <circle cx="640" cy="156" r="4"></circle>
+            <circle cx="640" cy="168" r="4"></circle>
+            <circle cx="740" cy="144" r="4"></circle>
+            <circle cx="740" cy="156" r="4"></circle>
+            <circle cx="740" cy="168" r="4"></circle>
+          </g>
+        </g>
+
+        <!-- keynotes -->
+        <g
+          id="pr-leaders"
+          stroke="#2a2c30"
+          stroke-width="1.25"
+          fill="none"
+          stroke-opacity="0.65"
+        >
+          {keynotes.map((k) => k.leader && <path class="pr-leader" d={k.leader} />)}
+        </g>
+        <g id="pr-keys">
+          {
+            keynotes.map((k) => (
+              <g class="pr-key">
+                <circle
+                  cx={k.cx}
+                  cy={k.cy}
+                  r="17"
+                  fill="#efeae0"
+                  stroke="#a84214"
+                  stroke-width="2"
+                />
+                <text
+                  x={k.cx}
+                  y={k.cy + 7}
+                  text-anchor="middle"
+                  font-family="IBM Plex Mono, monospace"
+                  font-size="20"
+                  font-weight="500"
+                  fill="#a84214"
+                >
+                  {k.n}
+                </text>
+              </g>
+            ))
+          }
+        </g>
+
+        <g id="pr-labels" font-family="IBM Plex Mono, monospace" font-size="15">
+          <text x="480" y="482" text-anchor="middle" fill="#a84214"
+            >TYPICAL SECTION — NOT TO SCALE</text
+          >
+        </g>
+
+        <!-- headline figure -->
+        {
+          contractValue && (
+            <text
+              id="pr-value"
+              x="920"
+              y="62"
+              text-anchor="end"
+              font-family="IBM Plex Mono, monospace"
+              font-size="46"
+              font-weight="500"
+              fill="#c8541f"
+            >
+              {contractValue}
+            </text>
+          )
+        }
+        <text
+          x="920"
+          y="84"
+          text-anchor="end"
+          font-family="IBM Plex Mono, monospace"
+          font-size="13"
+          letter-spacing="1.4"
+          fill="#2a2c30"
+          fill-opacity="0.75">{`${lanes} ${laneLabel}`.toUpperCase()}</text
+        >
+      </svg>
+    </div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,58ch)_minmax(0,26rem)] lg:gap-12">
+      {
+        job?.scope && (
+          <p class="text-[0.9375rem] leading-relaxed text-graphite/75">
+            {job.scope}
+          </p>
+        )
+      }
+
+      <div>
+        <p
+          class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep"
+        >
+          Keynotes
+        </p>
+        <ol class="mt-3 grid gap-px border border-graphite/20 bg-graphite/20 sm:grid-cols-2 lg:grid-cols-1">
+          {
+            keynotes.map((k) => (
+              <li class="flex items-baseline gap-3 bg-vellum px-4 py-2.5">
+                <span class="font-mono text-[0.8125rem] font-medium text-blaze-deep">
+                  {k.n}
+                </span>
+                <span class="text-[0.875rem] leading-snug text-graphite/80">
+                  {k.name}
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../scripts/plan-sheet-roadway";
+</script>

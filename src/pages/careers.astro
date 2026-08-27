@@ -1,0 +1,365 @@
+---
+/**
+ * §9.10 — careers built for a phone in a pickup. Full-bleed crew photography,
+ * the roles list, benefits, and an apply flow that works one-handed.
+ *
+ * Applications land at `identity.email`, exactly as they do today, so nothing
+ * changes internally when this ships.
+ */
+import { Image } from "astro:assets";
+import Page from "../layouts/Page.astro";
+import crew from "../assets/photos/careers-crew.jpg";
+import { identity, openRoles, benefits } from "../data/company";
+
+/**
+ * The real limits on the current application inbox. These are attachment
+ * limits, not company facts, so they do not live in company.ts yet — see the
+ * note in the build report. If they change, change them here.
+ */
+const attachmentLimits = { perFile: "10MB", total: "15MB" } as const;
+
+/** The apply-anyway path, offered in the role list itself. */
+const GENERAL_APPLICATION = "Not listed — general application";
+
+const labelClass =
+  "block font-display text-sm font-semibold uppercase tracking-[0.1em] text-graphite";
+// border-graphite/60 clears 3:1 against vellum so the field boundary reads on
+// its own; blaze-deep is the only orange that passes for focus on vellum.
+const fieldClass =
+  "mt-2 block w-full min-w-0 border border-graphite/60 bg-vellum px-3.5 py-3.5 font-mono text-base text-graphite transition-colors duration-150 hover:border-graphite focus:border-blaze-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blaze-deep";
+const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
+---
+
+<Page
+  title="Careers — North Fork Enterprises | Heavy Civil Jobs, Idaho"
+  description={`${openRoles.length} trades hiring at ${identity.legalName}. ${benefits.join(". ")}. Apply from your phone.`}
+  heading="Build where you live."
+  eyebrow={`Now hiring · ${openRoles.length} trades`}
+  intro="Heavy civil work across Idaho, Washington and Oregon. Bridges, roadway, underground utilities, excavation and blasting — jobs you can drive your family past."
+>
+  <!-- Full-bleed crew photography ---------------------------------------- -->
+  <section class="relative isolate">
+    <Image
+      src={crew}
+      alt="North Fork Enterprises crew in branded hoodies gathered around a new excavator on a snowy jobsite."
+      widths={[640, 1280, 1920]}
+      sizes="100vw"
+      loading="eager"
+      class="h-[52vh] max-h-[38rem] min-h-[19rem] w-full object-cover"
+    />
+    <div
+      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-iron via-iron/85 to-transparent pb-7 pt-28"
+    >
+      <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+        <p
+          class="max-w-[16ch] font-display text-[clamp(1.75rem,5.5vw,3.5rem)] font-bold uppercase leading-[0.95] tracking-tight text-vellum"
+        >
+          {benefits[3]}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Jump link: apply is one tap from the top of the page --------------- -->
+  <div class="border-b border-steel/25 bg-iron">
+    <div
+      class="mx-auto flex max-w-[86rem] flex-wrap items-center gap-x-5 gap-y-3 px-5 py-5 sm:px-8"
+    >
+      <a
+        href="#apply"
+        class="bg-blaze px-6 py-3.5 font-display text-base font-semibold uppercase tracking-[0.1em] text-iron transition-colors duration-200 hover:bg-vellum"
+        >Apply now</a
+      >
+      <p class="font-mono text-[0.8125rem] leading-relaxed text-vellum/70">
+        Five fields. No account, no login.
+      </p>
+    </div>
+  </div>
+
+  <!-- Open roles ---------------------------------------------------------- -->
+  <section aria-labelledby="roles-heading" class="bg-iron py-14 sm:py-16">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <h2
+        id="roles-heading"
+        class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Open roles
+      </h2>
+      <p class="mt-3 max-w-[54ch] text-vellum/70">
+        These are the trades we are hiring for right now. If yours is not on the
+        list, apply anyway — the work turns over.
+      </p>
+
+      <ul
+        data-roles
+        class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2"
+      >
+        {
+          openRoles.map((role, i) => (
+            <li class="flex items-start justify-between gap-4 bg-gunmetal p-6 sm:p-7">
+              <div class="flex min-w-0 items-baseline gap-4">
+                <span class="font-mono text-[0.6875rem] tracking-[0.14em] text-steel">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 class="font-display text-2xl font-semibold uppercase leading-tight tracking-tight text-vellum">
+                  {role}
+                </h3>
+              </div>
+              <span class="shrink-0 border border-blaze/60 px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-blaze">
+                Open
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-8 border-l-2 border-blaze pl-5 sm:pl-6">
+        <p class="label-mono text-blaze">Pay</p>
+        <p class="mt-2.5 max-w-[58ch] leading-relaxed text-vellum/80">
+          Pay depends on experience and prevailing wage requirements. Crews work
+          prevailing-wage public projects across the Pacific Northwest, so the
+          rate is set by the wage determination on the job and by what you bring
+          to it. We will talk numbers with you directly rather than post a range
+          that cannot hold across every project.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits ------------------------------------------------------------ -->
+  <section aria-labelledby="benefits-heading" class="bg-iron pb-14 sm:pb-16">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <h2
+        id="benefits-heading"
+        class="font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        What comes with it
+      </h2>
+
+      <ul
+        data-benefits
+        class="mt-8 grid gap-px border border-steel/25 bg-steel/25 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {
+          benefits.map((benefit, i) => (
+            <li class="flex flex-col bg-gunmetal p-5 sm:p-6">
+              <span class="font-mono text-[0.6875rem] tracking-[0.14em] text-blaze">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span class="mt-3 text-[0.9375rem] leading-relaxed text-vellum/85">
+                {benefit}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Apply --------------------------------------------------------------- -->
+  <section
+    id="apply"
+    aria-labelledby="apply-heading"
+    class="vellum-texture py-16 text-graphite sm:py-20"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="max-w-[38rem]">
+        <p class="label-mono text-blaze-deep">Application</p>
+        <h2
+          id="apply-heading"
+          class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+        >
+          Apply
+        </h2>
+        <p class="mt-4 leading-relaxed text-graphite/75">
+          Name, phone and the trade you run. Everything else is optional — a
+          resume helps, but you can apply without one.
+        </p>
+
+        <!--
+          LAUNCH BLOCKER: the action below is a placeholder. Create the form
+          endpoint (Formspree or equivalent, on a plan that accepts file
+          uploads), paste the real ID in, and test a live submission with an
+          attachment before this page ships. Applications must land at
+          identity.email exactly as they do today. Until then the form posts
+          nowhere and the mailto fallback below is the working path.
+        -->
+        <form
+          method="POST"
+          action="https://formspree.io/f/REPLACE-WITH-FORM-ID"
+          enctype="multipart/form-data"
+          class="mt-10"
+        >
+          <input type="hidden" name="_subject" value="Job application — website" />
+          <!-- Spam honeypot: left empty by humans, filled by bots. -->
+          <input
+            type="text"
+            name="_gotcha"
+            class="hidden"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <div class="grid gap-6">
+            <div class="min-w-0">
+              <label for="apply-name" class={labelClass}>
+                Name <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <input
+                id="apply-name"
+                name="name"
+                type="text"
+                required
+                autocomplete="name"
+                class={fieldClass}
+              />
+            </div>
+
+            <div class="min-w-0">
+              <label for="apply-phone" class={labelClass}>
+                Phone <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <input
+                id="apply-phone"
+                name="phone"
+                type="tel"
+                required
+                autocomplete="tel"
+                inputmode="tel"
+                aria-describedby="apply-phone-hint"
+                class={fieldClass}
+              />
+              <p id="apply-phone-hint" class={hintClass}>
+                The fastest way to reach you. We call.
+              </p>
+            </div>
+
+            <div class="min-w-0">
+              <label for="apply-email" class={labelClass}>Email</label>
+              <input
+                id="apply-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                aria-describedby="apply-email-hint"
+                class={fieldClass}
+              />
+              <p id="apply-email-hint" class={hintClass}>
+                Optional. Paperwork goes here if you have one.
+              </p>
+            </div>
+
+            <div class="min-w-0">
+              <label for="apply-role" class={labelClass}>
+                Role <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <select
+                id="apply-role"
+                name="role"
+                required
+                autocomplete="off"
+                class={fieldClass}
+              >
+                <option value="" disabled selected>Select a role</option>
+                {openRoles.map((role) => <option value={role}>{role}</option>)}
+                <option value={GENERAL_APPLICATION}>{GENERAL_APPLICATION}</option>
+              </select>
+            </div>
+
+            <div class="min-w-0">
+              <label for="apply-resume" class={labelClass}>Resume</label>
+              <input
+                id="apply-resume"
+                name="resume"
+                type="file"
+                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                aria-describedby="apply-resume-hint"
+                class="mt-2 block w-full min-w-0 border border-graphite/60 bg-vellum px-3.5 py-3 font-mono text-[0.8125rem] text-graphite file:mr-3 file:border-0 file:bg-graphite file:px-4 file:py-2 file:font-display file:text-sm file:font-semibold file:uppercase file:tracking-[0.08em] file:text-vellum hover:border-graphite focus:border-blaze-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blaze-deep"
+              />
+              <p id="apply-resume-hint" class={hintClass}>
+                Optional.{" "}
+                <span class="font-mono">{attachmentLimits.perFile}</span>{" "}
+                per attachment,{" "}
+                <span class="font-mono">{attachmentLimits.total}</span>{" "}
+                total. A photo of a paper resume is fine. Bigger than that, or no
+                resume at all — email{" "}
+                <a
+                  href={`mailto:${identity.email}?subject=${encodeURIComponent("Job application")}`}
+                  class="redline font-mono text-blaze-deep transition-[background-size] duration-200 hover:redline-on"
+                  >{identity.email}</a
+                > and we will take it from there.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <button
+              type="submit"
+              class="w-full bg-blaze px-7 py-4 font-display text-lg font-semibold uppercase tracking-[0.1em] text-iron transition-colors duration-200 hover:bg-blaze-deep hover:text-vellum sm:w-auto"
+            >
+              Send application
+            </button>
+            <p class="mt-4 font-mono text-[0.8125rem] text-graphite/75">
+              <span aria-hidden="true" class="text-blaze-deep">*</span> Required.
+              Applications go to {identity.email}.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Apply anyway -------------------------------------------------------- -->
+  <section
+    aria-labelledby="anyway-heading"
+    class="border-t border-steel/25 bg-iron py-14 sm:py-16"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="max-w-[52rem]">
+        <h2
+          id="anyway-heading"
+          class="font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+        >
+          Nothing on the list fits?
+        </h2>
+        <p class="mt-4 max-w-[58ch] leading-relaxed text-vellum/80">
+          Apply anyway. Choose{" "}
+          <span class="font-mono text-blaze">{GENERAL_APPLICATION}</span> in the
+          role field, or email us with what you run, what tickets and
+          certifications you hold, and where you are working out of. We would
+          rather have your name before the work shows up than scramble after it
+          does.
+        </p>
+
+        <div class="mt-7 flex flex-wrap gap-3">
+          <a
+            href="#apply"
+            class="border border-steel/50 px-5 py-3 font-display text-sm font-semibold uppercase tracking-[0.1em] text-vellum transition-colors duration-200 hover:border-blaze hover:text-blaze"
+            >Use the form</a
+          >
+          <a
+            href={`mailto:${identity.email}?subject=${encodeURIComponent("General application")}`}
+            class="border border-steel/50 px-5 py-3 font-mono text-sm tracking-tight text-vellum transition-colors duration-200 hover:border-blaze hover:text-blaze"
+            >{identity.email}</a
+          >
+        </div>
+
+        <p class="mt-8 border-t border-steel/25 pt-6 font-mono text-[0.8125rem] leading-relaxed text-steel">
+          Office hours {identity.hours} · {identity.hq.city},{" "}
+          {identity.hq.state} {identity.hq.zip}
+        </p>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const roles = document.querySelectorAll("[data-roles] > li");
+  if (roles.length) reveal(roles, 0.06);
+
+  const perks = document.querySelectorAll("[data-benefits] > li");
+  if (perks.length) reveal(perks, 0.05);
+</script>

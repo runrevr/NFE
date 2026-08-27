@@ -1,0 +1,305 @@
+---
+/**
+ * Living plan sheet #5 — drill pattern, plan view (blueprint §9.2.5 / §9.8).
+ *
+ * NFE has not supplied shot design data, so this sheet carries NO depths,
+ * burdens, spacings, delay periods or charge weights. Dimension lines are
+ * annotated "TYP." and the notes say where the real numbers live. The only
+ * hard figure on the sheet is the licence itself, straight from company.ts.
+ *
+ * The SVG is authored in its FINISHED state. plan-sheet-blast.ts hides and
+ * offsets elements only when motion is allowed, then animates them back.
+ */
+import { explosivesLicense, identity, sectors } from "../data/company";
+
+const blasting = sectors.find((s) => s.id === "excavation");
+
+/* ---------------------------------------------------------------------------
+ * Pattern geometry. Grid proportions only — the drawing is explicitly not to
+ * scale and nothing here is presented as a dimension.
+ * ------------------------------------------------------------------------ */
+const COLS = 7;
+const colX = (c: number) => 110 + c * 74;
+const rowY = (r: number) => 120 + r * 62;
+const echelon = (r: number) => (r % 2 === 1 ? 37 : 0);
+
+/** Rows fire from the free face back, left to right within a row. */
+const fireRows = [4, 3, 2, 1, 0];
+
+const holes = fireRows.flatMap((r, ri) =>
+  Array.from({ length: COLS }, (_, c) => ({
+    key: `${r}-${c}`,
+    cx: colX(c) + echelon(r),
+    cy: rowY(r),
+    order: ri * COLS + c,
+  })),
+);
+
+const rowMarks = fireRows.map((r, ri) => ({
+  r,
+  label: `ROW ${ri + 1}`,
+  y: rowY(r) + 5,
+}));
+
+const ties: string[] = [];
+fireRows.forEach((r, ri) => {
+  const y = rowY(r);
+  const o = echelon(r);
+  ties.push(`M ${colX(0) + o} ${y} L ${colX(COLS - 1) + o} ${y}`);
+  const prev = fireRows[ri - 1];
+  if (prev !== undefined) {
+    ties.push(
+      `M ${colX(COLS - 1) + echelon(prev)} ${rowY(prev)} L ${
+        colX(COLS - 1) + o
+      } ${y}`,
+    );
+  }
+});
+
+const faceTicks = Array.from({ length: 27 }, (_, i) => 78 + i * 22);
+---
+
+<section
+  id="plan-sheet-blast"
+  class="plan-grid border-y border-graphite/15 py-16 text-graphite sm:py-20"
+>
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2
+        class="max-w-[20ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+      >
+        Blast pattern
+      </h2>
+
+      <div
+        class="border border-graphite/30 px-4 py-2.5 font-mono text-[0.6875rem] leading-relaxed tracking-tight text-graphite/70"
+      >
+        <div>{identity.legalName.toUpperCase()}</div>
+        <div>DRILL &amp; SHOOT</div>
+        <div>TYPICAL PATTERN</div>
+        <div class="text-blaze-deep">SHT C-105</div>
+      </div>
+    </div>
+
+    <div
+      class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8"
+    >
+      <div class="border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+        <svg
+          viewBox="0 0 720 530"
+          class="h-auto w-full"
+          role="img"
+          aria-labelledby="blast-title blast-desc"
+        >
+          <title id="blast-title">Plan view of a typical drill pattern</title>
+          <desc id="blast-desc"
+            >Plan view, not to scale: five staggered rows of drill holes tied in
+            to a surface trunkline, firing row by row toward a free face at the
+            bottom of the sheet. Burden and spacing are shown as typical only —
+            hole depth, burden, spacing, delay periods and loading are set by
+            the approved shot plan for each site, not by this drawing.</desc
+          >
+
+          <defs>
+            <marker
+              id="px-arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#c8541f"></path>
+            </marker>
+            <marker
+              id="px-seq"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a2c30" fill-opacity="0.6"></path>
+            </marker>
+          </defs>
+
+          <!-- north arrow -->
+          <g id="px-north" stroke="#2a2c30" stroke-width="2" fill="none" stroke-opacity="0.6">
+            <path d="M 664 92 L 664 58"></path>
+            <path d="M 656 68 L 664 54 L 672 68" fill="none"></path>
+          </g>
+          <text
+            x="664"
+            y="44"
+            text-anchor="middle"
+            font-family="IBM Plex Mono, monospace"
+            font-size="15"
+            fill="#2a2c30"
+            fill-opacity="0.75">N</text
+          >
+
+          <!-- surface tie-in -->
+          <g
+            id="px-ties"
+            fill="none"
+            stroke="#2a2c30"
+            stroke-width="1.5"
+            stroke-opacity="0.45"
+            stroke-dasharray="7 5"
+          >
+            {ties.map((d) => <path class="px-tie" d={d} />)}
+          </g>
+
+          <!-- shock rings: decorative, authored invisible, used only on firing -->
+          <g id="px-rings" fill="none" stroke="#c8541f" stroke-width="2.5">
+            {
+              holes.map((h) => (
+                <circle class="px-ring" cx={h.cx} cy={h.cy} r="9" opacity="0" />
+              ))
+            }
+          </g>
+
+          <!-- drill holes -->
+          <g id="px-holes">
+            {
+              holes.map((h) => (
+                <g class="px-hole">
+                  <circle
+                    cx={h.cx}
+                    cy={h.cy}
+                    r="9"
+                    fill="#efeae0"
+                    stroke="#2a2c30"
+                    stroke-width="2.2"
+                  />
+                  <circle class="px-dot" cx={h.cx} cy={h.cy} r="2.8" fill="#a84214" />
+                </g>
+              ))
+            }
+          </g>
+
+          <!-- row initiation marks -->
+          <g
+            id="px-rows"
+            font-family="IBM Plex Mono, monospace"
+            font-size="15"
+            fill="#2a2c30"
+            fill-opacity="0.75"
+            text-anchor="end"
+          >
+            {
+              rowMarks.map((m) => (
+                <text class="px-row" x="88" y={m.y}>
+                  {m.label}
+                </text>
+              ))
+            }
+          </g>
+
+          <!-- initiation sequence -->
+          <g id="px-seq-arrow" stroke="#2a2c30" stroke-width="1.5" stroke-opacity="0.6" fill="none">
+            <path class="px-seq-line" d="M 668 380 L 668 116" marker-end="url(#px-seq)"></path>
+          </g>
+
+          <!-- undimensioned pattern callouts -->
+          <g id="px-dims" stroke="#c8541f" stroke-width="1.25" fill="none">
+            <path
+              class="px-dim"
+              d="M 110 402 L 184 402"
+              marker-start="url(#px-arrow)"
+              marker-end="url(#px-arrow)"></path>
+            <path
+              class="px-dim"
+              d="M 624 306 L 624 368"
+              marker-start="url(#px-arrow)"
+              marker-end="url(#px-arrow)"></path>
+            <g stroke-dasharray="4 4" stroke-opacity="0.5">
+              <path class="px-ext" d="M 110 380 L 110 412"></path>
+              <path class="px-ext" d="M 184 380 L 184 412"></path>
+              <path class="px-ext" d="M 601 306 L 634 306"></path>
+              <path class="px-ext" d="M 563 368 L 634 368"></path>
+            </g>
+          </g>
+
+          <!-- free face -->
+          <g id="px-face" stroke="#2a2c30" fill="none">
+            <path id="px-face-line" d="M 60 428 L 660 428" stroke-width="4"></path>
+            <g stroke-width="1.5" stroke-opacity="0.5">
+              {
+                faceTicks.map((x) => (
+                  <path class="px-face-tick" d={`M ${x} 428 L ${x - 9} 443`} />
+                ))
+              }
+            </g>
+          </g>
+
+          <!-- labels -->
+          <g id="px-labels" font-family="IBM Plex Mono, monospace" fill="#2a2c30">
+            <text x="54" y="46" font-size="15" fill="#a84214">PLAN — DRILL PATTERN</text>
+            <text x="147" y="396" font-size="15" fill="#a84214" text-anchor="middle">TYP.</text>
+            <text
+              x="618"
+              y="337"
+              font-size="15"
+              fill="#a84214"
+              text-anchor="middle"
+              transform="rotate(-90 618 337)">TYP.</text
+            >
+            <text
+              x="692"
+              y="248"
+              font-size="15"
+              fill-opacity="0.6"
+              text-anchor="middle"
+              transform="rotate(-90 692 248)">INITIATION SEQUENCE</text
+            >
+            <text x="60" y="466" font-size="15" fill="#a84214">FREE FACE</text>
+            <text x="54" y="496" font-size="13" fill-opacity="0.75"
+              >PATTERN — TYP. NOT TO SCALE</text
+            >
+            <text x="54" y="514" font-size="13" fill-opacity="0.75"
+              >DEPTH, BURDEN, SPACING, MS-DELAY PERIODS &amp; LOADING PER SHOT PLAN</text
+            >
+          </g>
+        </svg>
+      </div>
+
+      <!-- the licence, stamped -->
+      <div class="border-2 border-graphite/35 p-1.5">
+        <div class="border border-graphite/20 bg-vellum/70 px-5 py-6">
+          <p
+            class="font-mono text-[0.6875rem] uppercase leading-relaxed tracking-[0.14em] text-blaze-deep"
+          >
+            {explosivesLicense.label}
+          </p>
+          <p
+            class="mt-3 font-mono text-[clamp(1rem,2.2vw,1.375rem)] font-medium leading-tight tracking-tight text-graphite"
+          >
+            {explosivesLicense.value}
+          </p>
+          <p
+            class="mt-5 border-t border-graphite/20 pt-5 text-[0.875rem] leading-relaxed text-graphite/75"
+          >
+            Depth, burden, spacing, delay periods and loading are set by the
+            approved shot plan for each site. Nothing on this sheet is
+            dimensioned.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {
+      blasting?.blurb && (
+        <p class="mt-6 max-w-[62ch] text-[0.9375rem] leading-relaxed text-graphite/75">
+          {blasting.blurb}
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  import "../scripts/plan-sheet-blast";
+</script>

@@ -1,0 +1,346 @@
+---
+/**
+ * Living plan sheet #3 — Willow Creek Bridge, timber trestle to steel span
+ * (blueprint §9.2.3).
+ *
+ * Drawn the way a replacement sheet is drawn: the removed timber structure
+ * stays on the sheet as a ghost, the new steel superstructure is solid. That
+ * makes the FINISHED state legible on its own — the animation only replays
+ * how it got there.
+ *
+ * Span, width and loading come from the project's `quantities`. Nothing on
+ * this sheet is dimensioned that NFE has not supplied.
+ */
+import { projects } from "../data/company";
+
+const job = projects.find((p) => p.slug === "willow-creek-bridge");
+
+type Quantity = { label: string; value: string };
+const quantities: ReadonlyArray<Quantity> = job?.quantities ?? [];
+const q = (label: string) => quantities.find((item) => item.label === label);
+
+const span = q("Span")?.value ?? null;
+const loading = q("Vehicle loading")?.value ?? null;
+
+const headNote = loading ? `SINGLE SPAN · ${loading} LOADING` : "SINGLE SPAN";
+
+/* ---------------------------------------------------------------------------
+ * Geometry. Elevation, not to scale: the only dimension shown is the span,
+ * because the span is the only length NFE has published.
+ * ------------------------------------------------------------------------ */
+const CREEK_BED = 386;
+const DECK_X = 258;
+const DECK_W = 444;
+const PANELS = 8;
+const PANEL_W = DECK_W / PANELS;
+
+const deckPanels = Array.from({ length: PANELS }, (_, i) => ({
+  i,
+  x: DECK_X + i * PANEL_W,
+}));
+
+const railPosts = Array.from({ length: PANELS + 1 }, (_, i) => ({
+  i,
+  x: DECK_X + i * PANEL_W,
+}));
+
+/** Web stiffeners along the girder. */
+const stiffeners = Array.from({ length: 7 }, (_, i) => ({
+  i,
+  x: 272 + ((i + 1) * 416) / 8,
+}));
+
+/** Four timber bents in the channel, each drawn member by member. */
+const BENTS = [361, 441, 521, 601];
+const timber: string[] = [
+  `M 250 262 L 712 262`,
+  `M 250 270 L 712 270`,
+];
+for (const bx of BENTS) {
+  timber.push(
+    `M ${bx - 22} 270 L ${bx + 22} 270`,
+    `M ${bx - 15} 272 L ${bx - 24} ${CREEK_BED}`,
+    `M ${bx + 15} 272 L ${bx + 24} ${CREEK_BED}`,
+    `M ${bx - 19} 292 L ${bx + 21} 362`,
+    `M ${bx + 19} 292 L ${bx - 21} 362`,
+    `M ${bx - 20} 330 L ${bx + 20} 330`,
+  );
+}
+
+const wave = (y: number, amp: number) =>
+  `M 322 ${y} q 13 ${-amp} 26 0 ` + "t 26 0 ".repeat(11);
+---
+
+<section
+  id="plan-sheet-bridge-swap"
+  class="plan-grid border-y border-graphite/15 py-16 text-graphite sm:py-20"
+>
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2
+        class="max-w-[20ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+      >
+        The bridge swap
+      </h2>
+
+      <div
+        class="border border-graphite/30 px-4 py-2.5 font-mono text-[0.6875rem] leading-relaxed tracking-tight text-graphite/70"
+      >
+        {job?.owner && <div>{job.owner.toUpperCase()}</div>}
+        {job?.name && <div>{job.name.toUpperCase()}</div>}
+        {job?.location && <div>{job.location.toUpperCase()}</div>}
+        <div class="text-blaze-deep">SHT C-103</div>
+      </div>
+    </div>
+
+    <div class="mt-10 border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+      <svg
+        viewBox="0 0 960 470"
+        class="h-auto w-full"
+        role="img"
+        aria-labelledby="bridge-swap-title bridge-swap-desc"
+      >
+        <title id="bridge-swap-title"
+          >Elevation of the Willow Creek Bridge replacement</title
+        >
+        <desc id="bridge-swap-desc"
+          >Bridge elevation, not to scale. The removed timber trestle and its
+          four channel bents are shown ghosted; the new structure is a single
+          steel span carried on new abutments, with deck panels and rail set
+          above the girder. Span and vehicle loading are called out from the
+          project record.</desc
+        >
+
+        <defs>
+          <pattern
+            id="pb-earth"
+            width="14"
+            height="14"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line x1="0" y1="0" x2="0" y2="14" stroke="#2a2c30" stroke-opacity="0.14" stroke-width="1"></line>
+          </pattern>
+          <pattern id="pb-concrete" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="3" r="1.1" fill="#2a2c30" fill-opacity="0.3"></circle>
+            <circle cx="7.5" cy="7" r="0.8" fill="#2a2c30" fill-opacity="0.24"></circle>
+          </pattern>
+          <marker
+            id="pb-arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="7"
+            markerHeight="7"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c8541f"></path>
+          </marker>
+        </defs>
+
+        <!-- banks -->
+        <path
+          d="M 40 296 L 250 296 L 320 386 L 640 386 L 710 296 L 920 296 L 920 452 L 40 452 Z"
+          fill="url(#pb-earth)"></path>
+        <path
+          id="pb-ground"
+          d="M 40 296 L 250 296 L 320 386 L 640 386 L 710 296 L 920 296"
+          fill="none"
+          stroke="#2a2c30"
+          stroke-width="2.5"></path>
+
+        <!-- Willow Creek -->
+        <g id="pb-water">
+          <rect x="318" y="358" width="326" height="28" fill="#8b939e" fill-opacity="0.16"></rect>
+          <g fill="none" stroke="#8b939e" stroke-width="2">
+            <path class="pb-wave" d={wave(366, 7)}></path>
+            <path class="pb-wave" d={wave(378, -7)}></path>
+          </g>
+        </g>
+
+        <!-- EXISTING timber trestle, ghosted because it was removed -->
+        <g
+          id="pb-timber"
+          fill="none"
+          stroke="#2a2c30"
+          stroke-width="2.5"
+          stroke-opacity="0.32"
+          stroke-linecap="round"
+        >
+          {timber.map((d) => <path class="pb-timber-member" d={d} />)}
+        </g>
+
+        <!-- new abutments -->
+        <g id="pb-abutments" stroke="#2a2c30" stroke-width="2.5" fill="url(#pb-concrete)">
+          <path class="pb-abutment" d="M 232 258 L 290 258 L 302 350 L 232 350 Z"></path>
+          <path class="pb-abutment" d="M 670 258 L 728 258 L 728 350 L 658 350 Z"></path>
+        </g>
+
+        <!-- bearings -->
+        <g id="pb-bearings" fill="#8b939e" stroke="#2a2c30" stroke-width="2">
+          <rect class="pb-bearing" x="266" y="250" width="22" height="8"></rect>
+          <rect class="pb-bearing" x="672" y="250" width="22" height="8"></rect>
+        </g>
+
+        <!-- steel plate girder -->
+        <g id="pb-girder" stroke="#2a2c30" stroke-width="2">
+          <rect id="pb-web" x="272" y="230" width="416" height="12" fill="#8b939e" fill-opacity="0.4"></rect>
+          <rect id="pb-flange-bot" x="272" y="242" width="416" height="8" fill="#8b939e" fill-opacity="0.75"></rect>
+          <rect id="pb-flange-top" x="272" y="222" width="416" height="8" fill="#8b939e" fill-opacity="0.75"></rect>
+        </g>
+
+        <g id="pb-stiffeners" stroke="#2a2c30" stroke-width="1.75" stroke-opacity="0.7">
+          {
+            stiffeners.map((s) => (
+              <line
+                class="pb-stiffener"
+                x1={s.x.toFixed(1)}
+                y1="230"
+                x2={s.x.toFixed(1)}
+                y2="242"
+              />
+            ))
+          }
+        </g>
+
+        <!-- deck panels, set one at a time -->
+        <g id="pb-deck" stroke="#2a2c30" stroke-width="2" fill="#efeae0">
+          {
+            deckPanels.map((p) => (
+              <rect
+                class="pb-panel"
+                x={p.x.toFixed(1)}
+                y="198"
+                width={PANEL_W.toFixed(1)}
+                height="24"
+              />
+            ))
+          }
+        </g>
+
+        <!-- rail -->
+        <g id="pb-rail" stroke="#2a2c30" stroke-width="2.5" stroke-linecap="round">
+          <g fill="none">
+            {
+              railPosts.map((p) => (
+                <line
+                  class="pb-post"
+                  x1={p.x.toFixed(1)}
+                  y1="198"
+                  x2={p.x.toFixed(1)}
+                  y2="170"
+                />
+              ))
+            }
+          </g>
+          <line id="pb-toprail" x1="256" y1="170" x2="704" y2="170"></line>
+        </g>
+
+        <!-- the one dimension NFE has published -->
+        <g id="pb-dims" stroke="#c8541f" stroke-width="1.25" fill="none">
+          <path
+            class="pb-dim"
+            d="M 272 434 L 688 434"
+            marker-start="url(#pb-arrow)"
+            marker-end="url(#pb-arrow)"></path>
+          <g stroke-dasharray="4 4" stroke-opacity="0.5">
+            <path class="pb-ext" d="M 272 258 L 272 442"></path>
+            <path class="pb-ext" d="M 688 258 L 688 442"></path>
+          </g>
+        </g>
+
+        <!-- callout leaders -->
+        <g
+          id="pb-callouts"
+          stroke="#2a2c30"
+          stroke-width="1.25"
+          fill="none"
+          stroke-opacity="0.65"
+        >
+          <path d="M 330 198 L 300 150 L 240 150"></path>
+          <path d="M 361 330 L 330 404 L 250 404"></path>
+          <path d="M 728 300 L 770 300"></path>
+        </g>
+
+        <!-- labels -->
+        <g id="pb-labels" font-family="IBM Plex Mono, monospace" font-size="15" fill="#2a2c30">
+          <text x="234" y="155" text-anchor="end">NEW STEEL SUPERSTRUCTURE</text>
+          <text x="244" y="409" text-anchor="end" fill-opacity="0.75"
+            >EXISTING TIMBER TRESTLE</text
+          >
+          <text x="244" y="428" text-anchor="end" fill-opacity="0.75">(REMOVED)</text>
+          <text x="776" y="305">NEW ABUTMENT (TYP.)</text>
+          <rect x="418" y="362" width="124" height="20" fill="#efeae0"></rect>
+          <text x="480" y="377" text-anchor="middle" fill-opacity="0.75">WILLOW CREEK</text>
+          <text x="56" y="288" font-size="13" fill-opacity="0.75">EXISTING GROUND</text>
+          {
+            span && (
+              <text x="480" y="426" text-anchor="middle" fill="#a84214">
+                {span}
+              </text>
+            )
+          }
+        </g>
+
+        <!-- headline dimension -->
+        {
+          span && (
+            <text
+              id="pb-span"
+              x="920"
+              y="62"
+              text-anchor="end"
+              font-family="IBM Plex Mono, monospace"
+              font-size="46"
+              font-weight="500"
+              fill="#c8541f"
+            >
+              {span}
+            </text>
+          )
+        }
+        <text
+          x="920"
+          y="84"
+          text-anchor="end"
+          font-family="IBM Plex Mono, monospace"
+          font-size="13"
+          letter-spacing="1.4"
+          fill="#2a2c30"
+          fill-opacity="0.75">{headNote}</text
+        >
+      </svg>
+    </div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,62ch)_minmax(0,20rem)] lg:gap-12">
+      {
+        job?.scope && (
+          <p class="text-[0.9375rem] leading-relaxed text-graphite/75">
+            {job.scope}
+          </p>
+        )
+      }
+
+      <dl
+        class="grid grid-cols-2 gap-px border border-graphite/20 bg-graphite/20 font-mono sm:grid-cols-3 lg:grid-cols-1"
+      >
+        {
+          quantities.map((item) => (
+            <div class="bg-vellum px-4 py-3">
+              <dt class="text-[0.6875rem] uppercase tracking-[0.1em] text-graphite/75">
+                {item.label}
+              </dt>
+              <dd class="mt-1 text-lg font-medium tracking-tight text-graphite">
+                {item.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../scripts/plan-sheet-bridge-swap";
+</script>

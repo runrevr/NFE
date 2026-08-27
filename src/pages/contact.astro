@@ -1,0 +1,410 @@
+---
+/**
+ * §8 "Contact" — split routing so an estimator's invitation to bid never
+ * lands in the same pile as an accounts-payable question or a resume.
+ *
+ * No map embed by design: a third-party iframe means a third-party tracker
+ * on the estimator's machine. The location block is typographic instead.
+ */
+import Page from "../layouts/Page.astro";
+import { identity } from "../data/company";
+
+/** Pre-tagged subjects, same pattern as the Bid Room request flows. */
+const mailto = (subject: string) =>
+  `mailto:${identity.email}?subject=${encodeURIComponent(subject)}`;
+
+const routes = [
+  {
+    index: "01",
+    id: "bids",
+    title: "Bid invitations & estimating",
+    primary: true,
+    body: "Invitations to bid, plan-holder lists, addenda, scope questions, and DBE participation on federal-aid work.",
+    note: `A dedicated bids@ address is being set up. Until it is live, bid invitations go to ${identity.email} and reach estimating from there.`,
+    action: { label: identity.email, href: mailto("Bid invitation") },
+  },
+  {
+    index: "02",
+    id: "general",
+    title: "General enquiries",
+    primary: false,
+    body: "Vendors, accounts payable, scheduling, and anything that is neither a bid nor a job application.",
+    note: null,
+    action: { label: identity.email, href: mailto("General enquiry") },
+  },
+  {
+    index: "03",
+    id: "careers-route",
+    title: "Careers",
+    primary: false,
+    body: "Applications and questions about the trades we are hiring for. There is a form built for a phone — no attachment required to start.",
+    note: null,
+    action: { label: "Go to careers", href: "/careers" },
+  },
+] as const;
+
+/** Title-block cells. Values are mono; every one comes from `identity`. */
+const office = [
+  { label: "Office", value: identity.legalName, mono: false },
+  {
+    label: "Address",
+    value: `${identity.hq.street}\n${identity.hq.city}, ${identity.hq.state} ${identity.hq.zip}`,
+    mono: true,
+  },
+  { label: "Hours", value: identity.hours, mono: true },
+  { label: "Phone", value: identity.phone, mono: true, href: identity.phoneHref },
+  {
+    label: "Email",
+    value: identity.email,
+    mono: true,
+    href: `mailto:${identity.email}`,
+  },
+  {
+    label: "NAICS",
+    value: `${identity.naics} — ${identity.naicsLabel}`,
+    mono: true,
+  },
+] as const;
+
+// Field classes, kept in one place so every control focuses the same way.
+// border-graphite/60 clears 3:1 against vellum, so the field boundary is
+// visible on its own; blaze-deep is the only orange that passes on vellum.
+const labelClass =
+  "block font-display text-sm font-semibold uppercase tracking-[0.1em] text-graphite";
+const fieldClass =
+  "mt-2 block w-full min-w-0 border border-graphite/60 bg-vellum px-3.5 py-3 font-mono text-[0.9375rem] text-graphite transition-colors duration-150 hover:border-graphite focus:border-blaze-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blaze-deep";
+const hintClass = "mt-1.5 text-[0.8125rem] leading-relaxed text-graphite/75";
+---
+
+<Page
+  title="Contact — North Fork Enterprises | Pinehurst, Idaho"
+  description={`Bid invitations, general enquiries and careers routing for ${identity.legalName}. Office in ${identity.hq.city}, ${identity.hq.state}. ${identity.hours}.`}
+  heading="Contact"
+  eyebrow="Routing"
+  intro={`Three routes, so your email lands in the right inbox the first time. The office is open ${identity.hours}.`}
+>
+  <!-- Split routing ---------------------------------------------------- -->
+  <section aria-labelledby="routes-heading" class="bg-iron py-14 sm:py-16">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <h2
+        id="routes-heading"
+        class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Where to send it
+      </h2>
+      <p class="mt-3 max-w-[54ch] text-vellum/70">
+        Pick the route, not the person. Each one goes to {identity.email} until
+        the split addresses are live.
+      </p>
+
+      <div
+        data-routes
+        class="mt-10 grid gap-px border border-steel/20 bg-steel/20 lg:grid-cols-3"
+      >
+        {
+          routes.map((route) => (
+            <article
+              id={route.id}
+              class:list={[
+                "relative flex flex-col p-6 sm:p-7",
+                route.primary ? "bg-graphite" : "bg-gunmetal",
+              ]}
+            >
+              {route.primary && (
+                <span
+                  class="absolute inset-x-0 top-0 h-0.5 bg-blaze"
+                  aria-hidden="true"
+                />
+              )}
+
+              <div class="flex items-baseline gap-3">
+                <span class="font-mono text-[0.6875rem] tracking-[0.14em] text-blaze">
+                  {route.index}
+                </span>
+                {route.primary && (
+                  <span class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze">
+                    Primary
+                  </span>
+                )}
+              </div>
+
+              <h3 class="mt-3 font-display text-2xl font-semibold uppercase leading-tight tracking-tight text-vellum">
+                {route.title}
+              </h3>
+              <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-vellum/70">
+                {route.body}
+              </p>
+
+              {route.note && (
+                <p class="mt-4 border-l-2 border-blaze/70 pl-3.5 font-mono text-[0.8125rem] leading-relaxed text-vellum/70">
+                  {route.note}
+                </p>
+              )}
+
+              <div class="mt-auto pt-6">
+                <a
+                  href={route.action.href}
+                  class:list={[
+                    "inline-block px-5 py-3 font-display text-sm font-semibold uppercase tracking-[0.1em] transition-colors duration-200",
+                    route.primary
+                      ? "bg-blaze text-iron hover:bg-vellum"
+                      : "border border-steel/50 text-vellum hover:border-blaze hover:text-blaze",
+                  ]}
+                >
+                  {route.action.label}
+                </a>
+                {route.id === "bids" && (
+                  <p class="mt-3 text-[0.8125rem] text-vellum/70">
+                    Or{" "}
+                    <a
+                      href="#bid-form"
+                      class="redline text-blaze transition-[background-size] duration-200 hover:redline-on"
+                    >
+                      use the bid form below
+                    </a>
+                    .
+                  </p>
+                )}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Bid / estimating form --------------------------------------------- -->
+  <section
+    id="bid-form"
+    aria-labelledby="bid-form-heading"
+    class="vellum-texture py-16 text-graphite sm:py-20"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="max-w-[70rem]">
+        <p class="label-mono text-blaze-deep">Route 01 · Estimating</p>
+        <h2
+          id="bid-form-heading"
+          class="mt-3 max-w-[22ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+        >
+          Send a bid invitation
+        </h2>
+        <p class="mt-4 max-w-[58ch] leading-relaxed text-graphite/75">
+          This reaches the same inbox as the estimating address above. Plans,
+          addenda and anything else with a file attached: email them instead —
+          this form does not take attachments.
+        </p>
+
+        <!--
+          LAUNCH BLOCKER: the action below is a placeholder. Create the form
+          endpoint (Formspree or equivalent), paste the real ID in, and test a
+          live submission before this page ships. Until then the form posts
+          nowhere. The email routes above still work.
+        -->
+        <form
+          method="POST"
+          action="https://formspree.io/f/REPLACE-WITH-FORM-ID"
+          class="mt-10"
+        >
+          <!-- Pre-tags the subject line so NFE can route without reading the body. -->
+          <input type="hidden" name="_subject" value="Bid invitation — website" />
+          <!-- Spam honeypot: left empty by humans, filled by bots. -->
+          <input
+            type="text"
+            name="_gotcha"
+            class="hidden"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div class="min-w-0">
+              <label for="bid-name" class={labelClass}>
+                Your name <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <input
+                id="bid-name"
+                name="name"
+                type="text"
+                required
+                autocomplete="name"
+                class={fieldClass}
+              />
+            </div>
+
+            <div class="min-w-0">
+              <label for="bid-company" class={labelClass}>
+                Company <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <input
+                id="bid-company"
+                name="company"
+                type="text"
+                required
+                autocomplete="organization"
+                class={fieldClass}
+              />
+            </div>
+
+            <div class="min-w-0">
+              <label for="bid-email" class={labelClass}>
+                Email <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <input
+                id="bid-email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                class={fieldClass}
+              />
+            </div>
+
+            <div class="min-w-0">
+              <label for="bid-phone" class={labelClass}>Phone</label>
+              <input
+                id="bid-phone"
+                name="phone"
+                type="tel"
+                autocomplete="tel"
+                inputmode="tel"
+                class={fieldClass}
+              />
+            </div>
+
+            <div class="min-w-0">
+              <label for="bid-project" class={labelClass}>Project name</label>
+              <input
+                id="bid-project"
+                name="project"
+                type="text"
+                autocomplete="off"
+                aria-describedby="bid-project-hint"
+                class={fieldClass}
+              />
+              <p id="bid-project-hint" class={hintClass}>
+                Owner and job number if you have them.
+              </p>
+            </div>
+
+            <div class="min-w-0">
+              <label for="bid-date" class={labelClass}>Bid date</label>
+              <input
+                id="bid-date"
+                name="bid_date"
+                type="date"
+                autocomplete="off"
+                aria-describedby="bid-date-hint"
+                class={fieldClass}
+              />
+              <p id="bid-date-hint" class={hintClass}>
+                It tells us how to prioritize the takeoff.
+              </p>
+            </div>
+
+            <div class="min-w-0 sm:col-span-2">
+              <label for="bid-message" class={labelClass}>
+                Scope or message{" "}
+                <span aria-hidden="true" class="text-blaze-deep">*</span>
+              </label>
+              <textarea
+                id="bid-message"
+                name="message"
+                required
+                rows="6"
+                aria-describedby="bid-message-hint"
+                class={fieldClass}></textarea>
+              <p id="bid-message-hint" class={hintClass}>
+                The scopes you want covered are enough. We will come back with
+                questions.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <button
+              type="submit"
+              class="w-full bg-blaze px-7 py-3.5 font-display text-base font-semibold uppercase tracking-[0.1em] text-iron transition-colors duration-200 hover:bg-blaze-deep hover:text-vellum sm:w-auto"
+            >
+              Send to estimating
+            </button>
+            <p class="font-mono text-[0.8125rem] text-graphite/75">
+              <span aria-hidden="true" class="text-blaze-deep">*</span> Required.
+              Office hours {identity.hours}.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Office title block ------------------------------------------------- -->
+  <section aria-labelledby="office-heading" class="bg-iron py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <h2
+        id="office-heading"
+        class="font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        The office
+      </h2>
+
+      <!--
+        VERIFY BEFORE LAUNCH (company.ts identity.hq.verify): federal records
+        list 108 N Division St, Ste 102 against this entity. Confirm the mailing
+        address with NFE and correct company.ts, not this page.
+      -->
+      <dl
+        class="mt-8 grid gap-px border border-steel/30 bg-steel/25 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {
+          office.map((cell) => (
+            <div class="bg-iron p-5">
+              <dt class="label-mono">{cell.label}</dt>
+              <dd
+                class:list={[
+                  "mt-2.5 whitespace-pre-line text-[0.9375rem] leading-relaxed text-vellum/85",
+                  cell.mono ? "font-mono tracking-tight" : "font-display text-lg font-semibold uppercase tracking-[0.06em]",
+                ]}
+              >
+                {
+                  "href" in cell && cell.href ? (
+                    <a href={cell.href} class="transition-colors duration-200 hover:text-blaze">
+                      {cell.value}
+                    </a>
+                  ) : (
+                    cell.value
+                  )
+                }
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="mt-8 grid gap-8 border-t border-steel/25 pt-8 md:grid-cols-2">
+        <div>
+          <p class="label-mono">Location</p>
+          <p class="mt-3 max-w-[52ch] leading-relaxed text-vellum/80">
+            The address above is the {identity.hq.city} office — the company's
+            headquarters, in Idaho's {identity.hq.region}.
+          </p>
+        </div>
+        <div>
+          <p class="label-mono">Why there is no map here</p>
+          <p class="mt-3 max-w-[52ch] leading-relaxed text-vellum/80">
+            An embedded map is a third-party script running on your machine. We
+            would rather not. Turn-by-turn directions and delivery instructions
+            are available on request.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const cards = document.querySelectorAll("[data-routes] > article");
+  if (cards.length) reveal(cards, 0.06);
+</script>

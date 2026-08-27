@@ -1,0 +1,1002 @@
+---
+/**
+ * §9.3 — The Bid Room. A prequal hub, not a brochure.
+ *
+ * Everything an estimator pastes into bid software, stated once and copyable
+ * in one tap. Values are authored into the markup so they stay readable and
+ * selectable with JS off; the copy buttons are pure enhancement.
+ *
+ * Two things NFE has not supplied are deliberately NOT faked here: certificate
+ * PDFs with expiration dates, and the EMR. Both render as request paths.
+ */
+import Page from "../layouts/Page.astro";
+import {
+  identity,
+  identifiers,
+  licenses,
+  explosivesLicense,
+  bonding,
+  certifications,
+  sectors,
+  stats,
+  projects,
+  verificationLinks,
+  bidRequests,
+  safety,
+  fmt,
+} from "../data/company";
+
+type Chip = {
+  key: string;
+  label: string;
+  value: string;
+  note?: string;
+  copyLabel: string;
+};
+
+const chipGroups: {
+  id: string;
+  title: string;
+  note: string;
+  chips: Chip[];
+}[] = [
+  {
+    id: "chips-federal",
+    title: "Federal identifiers",
+    note: "Paste-ready for prequal forms and bid software.",
+    chips: identifiers.map((item) => ({
+      key: `id-${item.label}`,
+      label: item.label,
+      value: item.value,
+      note: item.label === "NAICS" ? identity.naicsLabel : undefined,
+      copyLabel: `Copy ${item.label}`,
+    })),
+  },
+  {
+    id: "chips-licenses",
+    title: "Contractor licenses",
+    note: "Public-works registration, by state.",
+    chips: licenses.map((license) => ({
+      key: `lic-${license.state}`,
+      label: `${license.state} · ${license.label}`,
+      value: license.number,
+      copyLabel: `Copy ${license.label} license number`,
+    })),
+  },
+  {
+    id: "chips-explosives",
+    title: "Blasting",
+    note: "Drill-and-shoot is self-performed under this license.",
+    chips: [
+      {
+        key: "fel",
+        label: explosivesLicense.label,
+        value: explosivesLicense.value,
+        copyLabel: `Copy ${explosivesLicense.label} number`,
+      },
+    ],
+  },
+];
+
+/** One paste that carries the whole block into a prequal form. */
+const copyAllText = [
+  identity.legalName,
+  ...chipGroups.flatMap((group) =>
+    group.chips.map((chip) => `${chip.label}: ${chip.value}`),
+  ),
+].join("\n");
+
+/** Bonding carries the same source line the homepage counters do. */
+const bondingSource = stats.find((s) => s.id === "bond-project")?.source ?? null;
+
+const contents = [
+  { href: "#identifiers", label: "Identifiers" },
+  { href: "#certifications", label: "Certifications" },
+  { href: "#bonding", label: "Bonding & EMR" },
+  { href: "#scope", label: "Self-perform scope" },
+  { href: "#verify", label: "Verify" },
+  { href: "#request", label: "Request documents" },
+  { href: "#capability-summary", label: "Capability summary" },
+];
+
+const issued = new Date().toISOString().slice(0, 10);
+
+const description = `Copy-ready UEI, CAGE, DUNS and state license numbers, federal certifications, ${fmt.money(
+  bonding.perProject,
+)} per-project bonding capacity, and public verification links for ${identity.legalName}.`;
+---
+
+<Page
+  title={`The Bid Room — prequal package | ${identity.shortName}`}
+  description={description}
+  eyebrow="Prequal package · Sheet B-001"
+  heading="The Bid Room"
+  intro="Everything you need to put NFE on your bid — in 90 seconds. Identifiers you can copy in one tap, certifications with what each one does for your bid, bonding capacity, and public links to check all of it without emailing anyone."
+>
+  <nav aria-label="Bid room contents" class="border-b border-steel/25 bg-iron">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <ul class="flex flex-wrap items-center gap-x-1 py-2">
+        {
+          contents.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="block px-3 py-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-vellum/75 transition-colors duration-200 hover:text-blaze focus-visible:text-blaze"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+
+  {/* 1 — copy chips -------------------------------------------------- */}
+  <section id="identifiers" class="bg-iron py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        class="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 border-b border-steel/25 pb-6"
+      >
+        <div>
+          <p class="label-mono text-blaze">Numbers to paste</p>
+          <h2
+            class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+          >
+            Identifiers
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          data-copy
+          data-copy-value={copyAllText}
+          aria-label="Copy every identifier and license number"
+          class="flex h-12 shrink-0 items-center gap-2.5 border-2 border-blaze px-5 font-display text-sm font-semibold uppercase tracking-[0.1em] text-blaze transition-colors duration-200 hover:bg-blaze hover:text-iron"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            class="h-4 w-4 shrink-0"
+          >
+            <rect x="5.5" y="5.5" width="8" height="9"></rect>
+            <path d="M10.5 5.5v-3h-8v9h3"></path>
+          </svg>
+          <span data-copy-label>Copy all</span>
+        </button>
+      </div>
+
+      <p id="bid-copy-status" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+      </p>
+
+      <div class="mt-10 space-y-10">
+        {
+          chipGroups.map((group) => (
+            <div>
+              <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <h3 class="font-display text-xl font-semibold uppercase tracking-[0.06em] text-vellum">
+                  {group.title}
+                </h3>
+                <p class="font-mono text-[0.6875rem] leading-relaxed text-steel">
+                  {group.note}
+                </p>
+              </div>
+
+              <ul
+                class:list={[
+                  "mt-4 grid gap-px border border-steel/20 bg-steel/20",
+                  group.chips.length > 1 && "sm:grid-cols-2 xl:grid-cols-4",
+                ]}
+              >
+                {group.chips.map((chip) => (
+                  <li class="flex items-center justify-between gap-3 bg-gunmetal p-4 sm:p-5">
+                    <div class="min-w-0">
+                      <p class="label-mono">{chip.label}</p>
+                      <p class="mt-1.5 break-all font-mono text-[0.9375rem] font-medium leading-tight tracking-tight text-vellum sm:text-base">
+                        {chip.value}
+                      </p>
+                      {chip.note && (
+                        <p class="mt-1.5 font-mono text-[0.6875rem] leading-relaxed text-steel">
+                          {chip.note}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      data-copy
+                      data-copy-value={chip.value}
+                      aria-label={chip.copyLabel}
+                      class="flex h-11 shrink-0 items-center gap-2 border border-steel/45 px-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-vellum/80 transition-colors duration-200 hover:border-blaze hover:text-blaze focus-visible:border-blaze focus-visible:text-blaze"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        class="h-3.5 w-3.5 shrink-0"
+                      >
+                        <rect x="5.5" y="5.5" width="8" height="9" />
+                        <path d="M10.5 5.5v-3h-8v9h3" />
+                      </svg>
+                      <span data-copy-label>Copy</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* 2 — certifications ---------------------------------------------- */}
+  <section id="certifications" class="vellum-texture py-16 text-graphite sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+        Certifications
+      </p>
+      <h2
+        class="mt-3 max-w-[22ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+      >
+        What each one does for your bid
+      </h2>
+      <p class="mt-3 max-w-[58ch] text-[0.9375rem] leading-relaxed text-graphite/75">
+        Spelled out, not hidden in a tooltip. If a certification does not help
+        your bid, it is not worth your time reading it.
+      </p>
+
+      <div
+        data-cert-list
+        class="mt-10 grid gap-px border border-graphite/25 bg-graphite/25 lg:grid-cols-2"
+      >
+        {
+          certifications.map((cert, index) => (
+            <article
+              class:list={[
+                "bg-vellum p-6 sm:p-7",
+                // An odd count would otherwise leave a bare divider cell.
+                index === certifications.length - 1 &&
+                  certifications.length % 2 === 1 &&
+                  "lg:col-span-2",
+              ]}
+            >
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h3 class="font-display text-2xl font-bold uppercase leading-none tracking-tight text-graphite">
+                  {cert.abbr}
+                </h3>
+                <p class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+                  {cert.detail}
+                </p>
+              </div>
+              <p class="mt-2.5 font-display text-base font-semibold uppercase tracking-[0.06em] text-graphite/75">
+                {cert.name}
+              </p>
+              <p class="mt-3 text-[0.9375rem] leading-relaxed text-graphite">
+                {cert.bidMeaning}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+
+      <p
+        class="mt-6 max-w-[64ch] border-l-2 border-blaze-deep pl-4 text-[0.9375rem] leading-relaxed text-graphite/75"
+      >
+        Certificate copies and current expiration dates are not posted on this
+        page. Email <a
+          href={`mailto:${identity.email}`}
+          class="font-mono text-blaze-deep underline underline-offset-2"
+          >{identity.email}</a
+        > or call <a
+          href={identity.phoneHref}
+          class="font-mono text-blaze-deep underline underline-offset-2"
+          >{identity.phone}</a
+        > and ask which certificate you need for your file.
+      </p>
+    </div>
+  </section>
+
+  {/* 3 + 7 — bonding and EMR ----------------------------------------- */}
+  <section id="bonding" class="bg-gunmetal py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="label-mono text-blaze">Surety</p>
+      <h2
+        class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Bonding capacity
+      </h2>
+
+      <dl class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2">
+        <div class="bg-gunmetal p-6 sm:p-8">
+          <dt class="label-mono">Single project</dt>
+          <dd
+            class="mt-3 font-mono text-[clamp(2rem,6vw,3.5rem)] font-medium leading-none tracking-tight text-blaze"
+          >
+            {fmt.money(bonding.perProject)}
+          </dd>
+        </div>
+        <div class="bg-gunmetal p-6 sm:p-8">
+          <dt class="label-mono">Aggregate</dt>
+          <dd
+            class="mt-3 font-mono text-[clamp(2rem,6vw,3.5rem)] font-medium leading-none tracking-tight text-blaze"
+          >
+            {fmt.money(bonding.aggregate)}
+          </dd>
+        </div>
+      </dl>
+      {
+        bondingSource && (
+          <p class="mt-3 font-mono text-[0.6875rem] leading-relaxed text-steel">
+            Source: {bondingSource}. A bonding letter for a specific project is a
+            one-field request below.
+          </p>
+        )
+      }
+
+      <div class="mt-10 border border-steel/25 bg-iron p-6 sm:p-8">
+        <p class="label-mono">EMR — experience modification rate</p>
+        {
+          safety.emr === null ? (
+            <p class="mt-3 font-mono text-2xl font-medium leading-none tracking-tight text-vellum">
+              Available on request
+            </p>
+          ) : (
+            <p class="mt-3 font-mono text-2xl font-medium leading-none tracking-tight text-blaze">
+              {safety.emr}
+              {safety.emrYear ? ` · ${safety.emrYear}` : ""}
+            </p>
+          )
+        }
+        <p class="mt-3 max-w-[62ch] text-[0.9375rem] leading-relaxed text-vellum/80">
+          NFE does not publish a current EMR on this site. Ask and it comes back
+          with the year it belongs to — an EMR without its year is not a number
+          you can use.
+        </p>
+        <p class="mt-3 font-mono text-[0.6875rem] leading-relaxed text-steel">
+          <a href={`mailto:${identity.email}`} class="text-blaze hover:underline"
+            >{identity.email}</a
+          > · <a href={identity.phoneHref} class="text-blaze hover:underline"
+            >{identity.phone}</a
+          >
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* 8 — self-perform scope snapshot ---------------------------------- */}
+  <section id="scope" class="bg-iron py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="label-mono text-blaze">Scope</p>
+      <h2
+        class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        What we self-perform
+      </h2>
+      <p class="mt-3 max-w-[58ch] text-[0.9375rem] leading-relaxed text-vellum/70">
+        Scopes NFE self-performs across Idaho, Washington and Oregon. Take the
+        line items you need; leave the rest.
+      </p>
+
+      <ol
+        data-scope-list
+        class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {
+          sectors.map((sector, index) => (
+            <li class="bg-gunmetal p-6">
+              <p class="font-mono text-[0.6875rem] tracking-[0.14em] text-blaze">
+                {String(index + 1).padStart(2, "0")}
+              </p>
+              <h3 class="mt-2 font-display text-xl font-semibold uppercase leading-tight tracking-tight text-vellum">
+                {sector.title}
+              </h3>
+              <p class="mt-2 text-[0.9375rem] leading-relaxed text-vellum/70">
+                {sector.blurb}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {/* 4 — verification deep-links -------------------------------------- */}
+  <section id="verify" class="bg-gunmetal py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="label-mono text-blaze">Verification</p>
+      <h2
+        class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Check it yourself
+      </h2>
+      <p class="mt-3 max-w-[58ch] text-[0.9375rem] leading-relaxed text-vellum/70">
+        Every claim on this page is verifiable in a public record. You should not
+        have to email a subcontractor to confirm a certification at 9pm.
+      </p>
+
+      <ul class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2">
+        {
+          verificationLinks.map((link) => (
+            <li class="bg-gunmetal">
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex min-h-[6rem] items-start justify-between gap-4 p-6 transition-colors duration-200 hover:bg-graphite focus-visible:bg-graphite"
+              >
+                <span class="min-w-0">
+                  <span class="block font-display text-lg font-semibold uppercase leading-tight tracking-tight text-vellum transition-colors duration-200 group-hover:text-blaze">
+                    {link.label}
+                    <span class="sr-only"> (opens in a new tab)</span>
+                  </span>
+                  <span class="mt-2 block break-words font-mono text-[0.6875rem] leading-relaxed text-steel">
+                    {link.note}
+                  </span>
+                </span>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  class="mt-1 h-4 w-4 shrink-0 text-blaze"
+                >
+                  <path d="M6.5 2.5H13.5V9.5" />
+                  <path d="M13.5 2.5 7 9" />
+                  <path d="M11 9.5V13.5H2.5V5H6.5" />
+                </svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* 5 — one-field document requests ---------------------------------- */}
+  <section id="request" class="bg-iron py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="label-mono text-blaze">Requests</p>
+      <h2
+        class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Documents on request
+      </h2>
+      <p class="mt-3 max-w-[58ch] text-[0.9375rem] leading-relaxed text-vellum/70">
+        One field each. The subject line is pre-tagged so the request routes
+        without anyone having to read the body first.
+      </p>
+
+      <!--
+        TODO — endpoint not configured. Each form below posts to the placeholder
+        /api/bid-request, which does not exist yet. Point the action at NFE's
+        real handler (an Astro endpoint, Netlify Forms, or a form service) and
+        keep the hidden `subject` field: it is what routes the request. Until
+        then the email and phone fallback under this grid is the live path.
+      -->
+      <div class="mt-10 grid gap-px border border-steel/20 bg-steel/20 sm:grid-cols-2">
+        {
+          bidRequests.map((request) => (
+            <form
+              class="bg-gunmetal p-6 sm:p-7"
+              method="post"
+              action="/api/bid-request"
+              aria-labelledby={`req-${request.id}-title`}
+            >
+              <input type="hidden" name="subject" value={request.subject} />
+
+              <h3
+                id={`req-${request.id}-title`}
+                class="font-display text-xl font-semibold uppercase leading-tight tracking-tight text-vellum"
+              >
+                {request.label}
+              </h3>
+              <p class="mt-1.5 font-mono text-[0.6875rem] leading-relaxed text-steel">
+                Subject: {request.subject}
+              </p>
+
+              <label
+                for={`req-${request.id}`}
+                class="mt-5 block font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-vellum/80"
+              >
+                Your email address
+              </label>
+              <input
+                id={`req-${request.id}`}
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                class="mt-2 block h-11 w-full border border-steel/45 bg-iron px-3 font-mono text-sm text-vellum focus:border-blaze"
+              />
+
+              <button
+                type="submit"
+                aria-label={`Send request — ${request.label}`}
+                class="mt-3 flex h-11 w-full items-center justify-center border-2 border-blaze bg-blaze px-4 font-display text-sm font-semibold uppercase tracking-[0.1em] text-iron transition-colors duration-200 hover:bg-transparent hover:text-blaze"
+              >
+                Send request
+              </button>
+            </form>
+          ))
+        }
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-[0.9375rem] leading-relaxed text-vellum/80">
+        Need something that is not on this list — a reference on a specific job,
+        a scope breakdown, a schedule — write to <a
+          href={`mailto:${identity.email}`}
+          class="font-mono text-blaze hover:underline">{identity.email}</a
+        > or call <a href={identity.phoneHref} class="font-mono text-blaze hover:underline"
+          >{identity.phone}</a
+        >. Office hours are {identity.hours}.
+      </p>
+    </div>
+  </section>
+
+  {/* 6 — printable capability summary --------------------------------- */}
+  <section id="capability-summary" class="vellum-texture py-16 text-graphite sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        data-print-hide
+        class="flex flex-wrap items-end justify-between gap-x-8 gap-y-6"
+      >
+        <div>
+          <p class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+            Capability statement
+          </p>
+          <h2
+            class="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+          >
+            One-page summary
+          </h2>
+          <p class="mt-3 max-w-[58ch] text-[0.9375rem] leading-relaxed text-graphite/75">
+            A generated PDF is not published yet. Everything that would be on it
+            is below, set to print on one page — print it, or save it as a PDF
+            from the print dialog.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          data-print
+          class="flex h-12 shrink-0 items-center gap-2.5 border-2 border-graphite px-5 font-display text-sm font-semibold uppercase tracking-[0.1em] text-graphite transition-colors duration-200 hover:bg-graphite hover:text-vellum"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            class="h-4 w-4 shrink-0"
+          >
+            <path d="M4.5 6V1.5h7V6"></path>
+            <path d="M4.5 12.5h-3V6h13v6.5h-3"></path>
+            <rect x="4.5" y="9.5" width="7" height="5"></rect>
+          </svg>
+          Print this summary
+        </button>
+      </div>
+
+      <article class="sheet mt-10 border border-graphite/30 bg-vellum">
+        <!-- title block -->
+        <div
+          class="sheet-pad grid gap-x-10 gap-y-5 border-b border-graphite/30 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,17rem)] sm:p-7"
+        >
+          <div>
+            <p
+              class="font-display text-[clamp(1.5rem,4vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+            >
+              {identity.legalName}
+            </p>
+            <p class="mt-3 max-w-[52ch] text-[0.9375rem] leading-relaxed text-graphite/75">
+              {identity.positioning}
+            </p>
+            <p class="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+              Capability summary · Issued {issued}
+            </p>
+          </div>
+
+          <dl class="space-y-1.5 font-mono text-xs leading-relaxed text-graphite">
+            <div class="flex gap-3">
+              <dt class="w-16 shrink-0 uppercase tracking-[0.12em] text-graphite/75">
+                Office
+              </dt>
+              <dd class="min-w-0">
+                {`${identity.hq.street}, ${identity.hq.city}, ${identity.hq.state} ${identity.hq.zip}`}
+              </dd>
+            </div>
+            <div class="flex gap-3">
+              <dt class="w-16 shrink-0 uppercase tracking-[0.12em] text-graphite/75">
+                Phone
+              </dt>
+              <dd class="min-w-0">{identity.phone}</dd>
+            </div>
+            <div class="flex gap-3">
+              <dt class="w-16 shrink-0 uppercase tracking-[0.12em] text-graphite/75">
+                Email
+              </dt>
+              <dd class="min-w-0 break-words">{identity.email}</dd>
+            </div>
+            <div class="flex gap-3">
+              <dt class="w-16 shrink-0 uppercase tracking-[0.12em] text-graphite/75">
+                Hours
+              </dt>
+              <dd class="min-w-0">{identity.hours}</dd>
+            </div>
+            <div class="flex gap-3">
+              <dt class="w-16 shrink-0 uppercase tracking-[0.12em] text-graphite/75">
+                Founded
+              </dt>
+              <dd class="min-w-0">{identity.founded}</dd>
+            </div>
+            <div class="flex gap-3">
+              <dt class="w-16 shrink-0 uppercase tracking-[0.12em] text-graphite/75">
+                Owner
+              </dt>
+              <dd class="min-w-0">{identity.owner}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- identifiers, licenses -->
+        <div class="sheet-pad border-b border-graphite/30 p-5 sm:p-7">
+          <h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+            Identifiers &amp; licenses
+          </h3>
+          <dl
+            class="print-cols-3 mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {
+              identifiers.map((item) => (
+                <div class="flex items-baseline gap-3 border-b border-graphite/15 pb-1.5">
+                  <dt class="w-24 shrink-0 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite/75">
+                    {item.label}
+                  </dt>
+                  <dd class="min-w-0 break-words font-mono text-[0.8125rem] text-graphite">
+                    {item.value}
+                    {item.label === "NAICS" && ` — ${identity.naicsLabel}`}
+                  </dd>
+                </div>
+              ))
+            }
+            {
+              licenses.map((license) => (
+                <div class="flex items-baseline gap-3 border-b border-graphite/15 pb-1.5">
+                  <dt class="w-24 shrink-0 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite/75">
+                    {license.state} lic.
+                  </dt>
+                  <dd class="min-w-0 break-words font-mono text-[0.8125rem] text-graphite">
+                    {license.number}
+                  </dd>
+                </div>
+              ))
+            }
+            <div class="flex items-baseline gap-3 border-b border-graphite/15 pb-1.5">
+              <dt class="w-24 shrink-0 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite/75">
+                Explosives
+              </dt>
+              <dd class="min-w-0 break-words font-mono text-[0.8125rem] text-graphite">
+                {explosivesLicense.value}
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- certifications, bonding, EMR -->
+        <div
+          class="sheet-pad grid gap-x-10 gap-y-6 border-b border-graphite/30 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,15rem)] sm:p-7"
+        >
+          <div>
+            <h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+              Certifications
+            </h3>
+            <ul class="mt-4 space-y-2">
+              {
+                certifications.map((cert) => (
+                  <li class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-graphite/15 pb-1.5">
+                    <span class="font-display text-base font-bold uppercase leading-none tracking-tight text-graphite">
+                      {cert.abbr}
+                    </span>
+                    <span class="text-[0.8125rem] leading-snug text-graphite/75">
+                      {cert.name}
+                    </span>
+                    <span class="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite">
+                      {cert.detail}
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+              Bonding &amp; safety
+            </h3>
+            <dl class="mt-4 space-y-2.5">
+              <div class="border-b border-graphite/15 pb-1.5">
+                <dt class="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite/75">
+                  Single project
+                </dt>
+                <dd class="font-mono text-lg font-medium leading-tight tracking-tight text-graphite">
+                  {fmt.money(bonding.perProject)}
+                </dd>
+              </div>
+              <div class="border-b border-graphite/15 pb-1.5">
+                <dt class="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite/75">
+                  Aggregate
+                </dt>
+                <dd class="font-mono text-lg font-medium leading-tight tracking-tight text-graphite">
+                  {fmt.money(bonding.aggregate)}
+                </dd>
+              </div>
+              <div class="border-b border-graphite/15 pb-1.5">
+                <dt class="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-graphite/75">
+                  EMR
+                </dt>
+                <dd class="font-mono text-[0.8125rem] text-graphite">
+                  {safety.emr === null ? "Available on request" : safety.emr}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <!-- self-perform scope -->
+        <div class="sheet-pad border-b border-graphite/30 p-5 sm:p-7">
+          <h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+            Self-perform scope
+          </h3>
+          <ul class="print-cols-3 mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+            {
+              sectors.map((sector) => (
+                <li class="border-b border-graphite/15 pb-1.5">
+                  <p class="font-display text-base font-semibold uppercase leading-tight tracking-[0.06em] text-graphite">
+                    {sector.title}
+                  </p>
+                  <p class="mt-0.5 text-[0.8125rem] leading-snug text-graphite/75">
+                    {sector.blurb}
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <!-- project snapshot -->
+        <div class="sheet-pad p-5 sm:p-7">
+          <h3 class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep">
+            Project snapshot
+          </h3>
+          <ul class="mt-4">
+            {
+              projects.map((project) => (
+                <li class="project-row grid gap-x-6 gap-y-0.5 border-b border-graphite/15 py-2 sm:grid-cols-[minmax(0,12rem)_minmax(0,12rem)_minmax(0,1fr)]">
+                  <p class="font-display text-base font-semibold uppercase leading-tight tracking-[0.04em] text-graphite">
+                    {project.name}
+                  </p>
+                  <p class="font-mono text-[0.6875rem] leading-snug text-graphite/75">
+                    {project.owner ?? project.location}
+                  </p>
+                  <p class="text-[0.8125rem] leading-snug text-graphite">
+                    {project.headline}
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="mt-4 font-mono text-[0.6875rem] leading-relaxed text-graphite/75">
+            {identity.legalName} · {identity.phone} · {identity.email} · NAICS {
+              identity.naics
+            }
+          </p>
+        </div>
+      </article>
+    </div>
+  </section>
+</Page>
+
+<style>
+  /* The nav bar is fixed on interior pages; keep anchor targets clear of it. */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  /* Copy confirmation. The label text swaps too, so this is not the only cue. */
+  button.is-copied {
+    color: var(--color-blaze);
+    border-color: var(--color-blaze);
+  }
+</style>
+
+<style is:global>
+  @page {
+    margin: 0.45in;
+  }
+
+  /* Print only the capability summary, monochrome, on one page. */
+  @media print {
+    html,
+    body {
+      background: white !important;
+    }
+
+    body > a,
+    body > header,
+    body > footer,
+    main > *:not(#capability-summary) {
+      display: none !important;
+    }
+
+    #capability-summary {
+      padding: 0 !important;
+      font-size: 8pt;
+      line-height: 1.32;
+    }
+
+    #capability-summary > div {
+      max-width: none !important;
+      padding: 0 !important;
+    }
+
+    #capability-summary,
+    #capability-summary * {
+      color: black !important;
+      background: transparent !important;
+      border-color: rgb(0 0 0 / 0.45) !important;
+    }
+
+    #capability-summary [data-print-hide] {
+      display: none !important;
+    }
+
+    #capability-summary .sheet {
+      margin-top: 0 !important;
+      border-width: 1px !important;
+    }
+
+    #capability-summary .sheet-pad {
+      padding: 0.13in !important;
+      gap: 0.13in !important;
+    }
+
+    /* The lg: breakpoint never matches a letter page, so force the wide
+       arrangement here — three columns is what keeps this to one sheet. */
+    #capability-summary .print-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    /* Squeeze the vertical rhythm: screen spacing costs two inches here. */
+    #capability-summary .sheet ul,
+    #capability-summary .sheet dl {
+      margin-top: 5pt !important;
+      row-gap: 3pt !important;
+      column-gap: 14pt !important;
+    }
+
+    #capability-summary .sheet ul > * + *,
+    #capability-summary .sheet dl > * + * {
+      margin-top: 0 !important;
+    }
+
+    /* Twelve jobs, one line each — the widest name still clears 13rem of
+       condensed type at this size. */
+    #capability-summary .sheet .project-row {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 11rem) minmax(0, 1fr) !important;
+      column-gap: 10pt !important;
+      padding: 1.5pt 0 !important;
+    }
+
+    #capability-summary h3 {
+      font-size: 7.5pt;
+    }
+
+    /* Tighten the stacked rules so twelve projects still land on one page. */
+    #capability-summary li,
+    #capability-summary dl > div {
+      padding-top: 0 !important;
+      padding-bottom: 2pt !important;
+      break-inside: avoid;
+    }
+
+    #capability-summary li p,
+    #capability-summary dd,
+    #capability-summary dt,
+    #capability-summary span {
+      font-size: 7.5pt !important;
+      line-height: 1.28 !important;
+    }
+  }
+</style>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  /* --- copy chips ------------------------------------------------------ */
+
+  const status = document.getElementById("bid-copy-status");
+
+  /** Clipboard API where it exists; a selected off-screen textarea where it does not. */
+  async function copyText(text: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      /* falls through to the legacy path below */
+    }
+
+    try {
+      const field = document.createElement("textarea");
+      field.value = text;
+      field.setAttribute("readonly", "");
+      field.style.position = "fixed";
+      field.style.top = "0";
+      field.style.left = "-9999px";
+      document.body.appendChild(field);
+      field.select();
+      const ok = document.execCommand("copy");
+      field.remove();
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  const timers = new WeakMap<HTMLButtonElement, number>();
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    const label = button.querySelector<HTMLElement>("[data-copy-label]");
+    const original = label?.textContent ?? "";
+    const name = button.getAttribute("aria-label") ?? "Value";
+
+    button.addEventListener("click", async () => {
+      const value = button.dataset.copyValue ?? "";
+      if (!value) return;
+
+      const ok = await copyText(value);
+
+      if (label) label.textContent = ok ? "Copied" : "Select it";
+      button.classList.toggle("is-copied", ok);
+      // The button carries an aria-label, so the swapped text is not announced
+      // twice; this live region is what screen readers hear.
+      if (status) {
+        status.textContent = ok
+          ? `${name.replace(/^Copy /, "")} copied to clipboard.`
+          : `Could not copy automatically. Select the value and copy it manually.`;
+      }
+
+      window.clearTimeout(timers.get(button));
+      timers.set(
+        button,
+        window.setTimeout(() => {
+          if (label) label.textContent = original;
+          button.classList.remove("is-copied");
+          if (status) status.textContent = "";
+        }, 2000),
+      );
+    });
+  }
+
+  /* --- print ----------------------------------------------------------- */
+
+  document
+    .querySelector<HTMLButtonElement>("[data-print]")
+    ?.addEventListener("click", () => window.print());
+
+  /* --- motion (subtractive, gated on motionOK inside reveal) ------------ */
+
+  const certs = document.querySelectorAll("[data-cert-list] article");
+  if (certs.length) reveal(certs, 0.05);
+
+  const scopes = document.querySelectorAll("[data-scope-list] li");
+  if (scopes.length) reveal(scopes, 0.05);
+</script>

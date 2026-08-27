@@ -1,0 +1,564 @@
+---
+/**
+ * §8 "Capabilities" — sector-by-sector self-perform scopes, every one backed by
+ * a named project from `projects` and the quantities on that project's record.
+ *
+ * Nothing on this page is written by hand: sector titles and blurbs come from
+ * `sectors`, evidence rows and quantities come from `projects`, and the
+ * blasting lockup renders `explosivesLicense`. Where a scope has no published
+ * quantity, the row simply omits it rather than reaching for a figure.
+ */
+import Page from "../layouts/Page.astro";
+import StationDivider from "../components/StationDivider.astro";
+import PlanSheetBlast from "../components/PlanSheetBlast.astro";
+import {
+  sectors,
+  projects,
+  explosivesLicense,
+  bonding,
+  identity,
+  fmt,
+} from "../data/company";
+
+type ScopeEvidence = {
+  /** Project-sector classifications that belong to this scope. */
+  sectors: readonly string[];
+  /** Extra project slugs whose own published scope names this work. */
+  slugs: readonly string[];
+  /** Mono caption above the evidence list — says how these were selected. */
+  caption: string;
+};
+
+/**
+ * How each sector card earns its proof. Three of the six map straight onto a
+ * `projectSectors` value. Excavation and Concrete have no classification of
+ * their own, so they cite the projects whose scope narrative in company.ts
+ * names that work — I-90 ("Excavation support…"), Sullivan Road ("ADA ramps,
+ * curb and gutter, sidewalk"), Desmet Road ("Trail, sidewalk, and pedestrian
+ * bridge"). The caption tells the reader which of the two it is.
+ */
+const evidence = {
+  bridges: {
+    sectors: ["Bridges"],
+    slugs: [],
+    caption: "Projects filed under this scope",
+  },
+  roads: {
+    sectors: ["Roads & Highways"],
+    slugs: [],
+    caption: "Projects filed under this scope",
+  },
+  underground: {
+    sectors: ["Underground Utilities"],
+    slugs: [],
+    caption: "Projects filed under this scope",
+  },
+  excavation: {
+    sectors: [],
+    slugs: ["i90-cda-river-bridges"],
+    caption: "Named in the project record",
+  },
+  concrete: {
+    sectors: [],
+    slugs: ["sullivan-road", "desmet-rd-trail-bridge"],
+    caption: "Named in the project record",
+  },
+  federal: {
+    sectors: ["Federal"],
+    slugs: ["willow-creek-bridge"],
+    caption: "Federal owners on our project list",
+  },
+} satisfies Record<(typeof sectors)[number]["id"], ScopeEvidence>;
+
+type Quantity = { label: string; value: string; project: string };
+
+/**
+ * company.ts records the USDA FS prime as the placeholder string "Prime
+ * contractor" — there is no firm name to print, so the line is omitted rather
+ * than printed as a non-name.
+ */
+function namedPrime(prime: string | null): string | null {
+  return prime && prime !== "Prime contractor" ? prime : null;
+}
+
+const blocks = sectors.map((sector, i) => {
+  const rule = evidence[sector.id];
+  const cited = projects.filter(
+    (p) => rule.sectors.includes(p.sector) || rule.slugs.includes(p.slug),
+  );
+
+  return {
+    id: sector.id,
+    title: sector.title,
+    blurb: sector.blurb,
+    caption: rule.caption,
+    no: String(i + 1).padStart(2, "0"),
+    light: i % 2 === 1,
+    rows: cited.map((p) => ({
+      slug: p.slug,
+      name: p.name,
+      owner: p.owner,
+      location: p.location,
+      headline: p.headline,
+      prime: namedPrime(p.prime),
+      quantities: (
+        p.quantities as ReadonlyArray<{ label: string; value: string }>
+      ).map((q): Quantity => ({
+        label: q.label,
+        value: q.value,
+        project: p.name,
+      })),
+    })),
+  };
+});
+
+const blasting = sectors.find((s) => s.id === "excavation");
+
+/**
+ * Listed in NFE's federal vendor profile but not confirmed as current
+ * offerings (blueprint §3 open item). Held here rather than in company.ts
+ * precisely because they are not facts about the company yet — they are
+ * questions for NFE, and the page presents them as questions.
+ */
+const unconfirmed = [
+  "Equipment rental",
+  "Aggregate production",
+  "Emergency response",
+];
+
+const description = `Self-perform heavy civil scopes at ${identity.shortName}: ${sectors
+  .map((s) => s.title)
+  .join(", ")}. Each backed by a named project, its owner, and the quantities on record.`;
+---
+
+<Page
+  title="Capabilities — Self-Perform Scopes | North Fork Enterprises"
+  description={description}
+  eyebrow="Scope of work"
+  heading="What we self-perform"
+  intro="Six scopes we run with our own crews. Each one below is backed by a named project, the owner who bought it, and the quantities on that job's record. Click any line to open the job."
+>
+  <!-- Scope index ------------------------------------------------------- -->
+  <section aria-label="Scope index" class="border-b border-steel/20 bg-iron py-8">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="label-mono">Scope index</p>
+      <ul class="mt-4 grid gap-x-10 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          blocks.map((block) => (
+            <li class="border-b border-steel/15 last:border-b-0 sm:last:border-b">
+              <a
+                href={`#${block.id}`}
+                class="group flex items-baseline gap-3 py-2.5"
+              >
+                <span class="font-mono text-[0.6875rem] tracking-[0.14em] text-steel">
+                  {block.no}
+                </span>
+                <span class="redline font-display text-lg font-semibold uppercase leading-tight tracking-[0.06em] text-vellum transition-[background-size] duration-200 group-hover:redline-on">
+                  {block.title}
+                </span>
+                <span class="ml-auto shrink-0 font-mono text-[0.6875rem] tracking-tight text-steel">
+                  {block.rows.length}
+                  {block.rows.length === 1 ? " job" : " jobs"}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <StationDivider station="STA 1+00" label="Self-perform scopes" />
+
+  <!-- The six scopes ---------------------------------------------------- -->
+  {
+    blocks.map((block) => {
+      const tone = block.light
+        ? {
+            ground: "vellum-texture",
+            eyebrow: "text-blaze-deep",
+            heading: "text-graphite",
+            body: "text-graphite/75",
+            caption: "text-graphite/75",
+            rule: "border-graphite/20",
+            name: "text-graphite",
+            meta: "text-graphite/75",
+            accent: "text-blaze-deep",
+            ink: "bg-blaze-deep",
+            // `redline` inks in plain blaze, which is wrong under blaze-deep
+            // text on vellum, so light grounds get a deep rule instead.
+            link: "border-b-2 border-blaze-deep/30 hover:border-blaze-deep",
+          }
+        : {
+            ground: "bg-iron",
+            eyebrow: "text-blaze",
+            heading: "text-vellum",
+            body: "text-vellum/70",
+            caption: "text-steel",
+            rule: "border-steel/25",
+            name: "text-vellum",
+            meta: "text-vellum/70",
+            accent: "text-blaze",
+            ink: "bg-blaze",
+            link: "redline hover:redline-on",
+          };
+
+      return (
+        <section
+          id={block.id}
+          aria-labelledby={`${block.id}-heading`}
+          class:list={[
+            "scroll-mt-24 py-14 sm:py-16",
+            tone.ground,
+            block.light && "text-graphite",
+          ]}
+        >
+          <div class="mx-auto grid max-w-[86rem] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:gap-12">
+            <div class="lg:col-span-4">
+              <p
+                class:list={[
+                  "font-mono text-[0.6875rem] uppercase tracking-[0.16em]",
+                  tone.eyebrow,
+                ]}
+              >
+                Scope {block.no}
+              </p>
+              <h2
+                id={`${block.id}-heading`}
+                class:list={[
+                  "mt-3 font-display text-[clamp(2rem,4.5vw,2.75rem)] font-bold uppercase leading-[0.95] tracking-tight",
+                  tone.heading,
+                ]}
+              >
+                {block.title}
+              </h2>
+              <p
+                class:list={[
+                  "mt-4 max-w-[42ch] leading-relaxed",
+                  tone.body,
+                ]}
+              >
+                {block.blurb}
+              </p>
+
+              {block.id === "excavation" && (
+                <a
+                  href="#blasting"
+                  class:list={[
+                    "mt-5 inline-block font-display text-sm font-semibold uppercase tracking-[0.12em] transition-[background-size,border-color] duration-200",
+                    tone.accent,
+                    tone.link,
+                  ]}
+                >
+                  Federal explosives license →
+                </a>
+              )}
+            </div>
+
+            <div class="lg:col-span-8">
+              <p
+                class:list={[
+                  "font-mono text-[0.6875rem] uppercase tracking-[0.16em]",
+                  tone.caption,
+                ]}
+              >
+                {block.caption}
+              </p>
+
+              {block.rows.length > 0 ? (
+                <ul
+                  data-scope-rows
+                  class:list={["mt-4 border-b", tone.rule]}
+                >
+                  {block.rows.map((row) => (
+                    <li class:list={["border-t", tone.rule]}>
+                      <a
+                        href={`/projects/${row.slug}`}
+                        class="group relative block py-5"
+                      >
+                        <span
+                          class:list={[
+                            "absolute inset-x-0 top-0 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100",
+                            tone.ink,
+                          ]}
+                        />
+                        <div class="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
+                          <h3
+                            class:list={[
+                              "font-display text-xl font-semibold uppercase leading-tight tracking-tight transition-colors duration-200 sm:text-2xl",
+                              tone.name,
+                              block.light
+                                ? "group-hover:text-blaze-deep"
+                                : "group-hover:text-blaze",
+                            ]}
+                          >
+                            {row.name}
+                          </h3>
+                          <p
+                            class:list={[
+                              "font-mono text-xs tracking-tight",
+                              tone.caption,
+                            ]}
+                          >
+                            {row.owner ?? row.location}
+                            {row.prime && <span> · sub to {row.prime}</span>}
+                          </p>
+                        </div>
+
+                        <p
+                          class:list={[
+                            "mt-2 max-w-[56ch] text-[0.9375rem] leading-relaxed",
+                            tone.meta,
+                          ]}
+                        >
+                          {row.headline}
+                        </p>
+
+                        {row.quantities.length > 0 && (
+                          <dl class="mt-3.5 flex flex-wrap gap-x-8 gap-y-3">
+                            {row.quantities.map((q) => (
+                              <div>
+                                <dt
+                                  class:list={[
+                                    "font-mono text-[0.6875rem] uppercase tracking-[0.14em]",
+                                    tone.caption,
+                                  ]}
+                                >
+                                  {q.label}
+                                </dt>
+                                <dd
+                                  class:list={[
+                                    "mt-1 font-mono text-base font-medium tracking-tight",
+                                    tone.accent,
+                                  ]}
+                                >
+                                  {q.value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        )}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class:list={["mt-4 max-w-[52ch] leading-relaxed", tone.body]}>
+                  No project on this site is filed under this scope yet.
+                  References available on request.
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    })
+  }
+
+  <StationDivider station="STA 2+00" label="Blasting" />
+
+  <!-- Blasting ----------------------------------------------------------- -->
+  <section
+    id="blasting"
+    aria-labelledby="blasting-heading"
+    class="scroll-mt-24 bg-iron pb-16 pt-4 sm:pb-20"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        class="grid gap-10 border border-steel/25 bg-gunmetal p-6 sm:p-10 lg:grid-cols-12 lg:gap-12"
+      >
+        <div class="lg:col-span-7">
+          <p class="label-mono text-blaze">{blasting?.title}</p>
+          <h2
+            id="blasting-heading"
+            class="mt-3 max-w-[18ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-[0.95] tracking-tight text-vellum"
+          >
+            Licensed drill-and-shoot
+          </h2>
+
+          <p class="mt-5 max-w-[54ch] leading-relaxed text-vellum/80">
+            A federal explosives license is rare for a subcontractor this size.
+            Most hire the rock out, and the schedule absorbs the hand-off. We
+            hold the license and run drill-and-shoot ourselves, alongside the
+            excavation it serves.
+          </p>
+          <p class="mt-4 max-w-[54ch] leading-relaxed text-vellum/80">
+            Shot design, delay sequencing and charge weights are set per site
+            and issued with the submittal package. We do not publish typical
+            depths or pattern sizes — send us the geotech and the section, and
+            we will price the rock in front of you.
+          </p>
+
+          <a
+            href="/safety"
+            class="redline mt-6 inline-block font-display text-sm font-semibold uppercase tracking-[0.12em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+            >Safety program →</a
+          >
+        </div>
+
+        <div class="lg:col-span-5 lg:justify-self-end">
+          <div class="inline-block border-2 border-blaze/70 p-1 sm:-rotate-1">
+            <div class="border border-blaze/35 px-5 py-5 sm:px-7">
+              <p
+                class="font-mono text-[0.6875rem] uppercase leading-relaxed tracking-[0.16em] text-blaze"
+              >
+                {explosivesLicense.label}
+              </p>
+              <p
+                class="mt-2.5 font-mono text-[clamp(1.05rem,4.4vw,1.75rem)] font-medium leading-none tracking-tight text-vellum"
+              >
+                {explosivesLicense.value}
+              </p>
+              <p
+                class="mt-4 border-t border-blaze/25 pt-3 font-mono text-[0.6875rem] uppercase leading-relaxed tracking-[0.14em] text-steel"
+              >
+                {identity.legalName}
+              </p>
+            </div>
+          </div>
+
+          <p
+            class="mt-5 max-w-[34ch] font-mono text-[0.6875rem] leading-relaxed tracking-tight text-steel"
+          >
+            License number printed in full so an estimator can verify it without
+            emailing anyone.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <PlanSheetBlast />
+
+  <!-- Not confirmed ------------------------------------------------------ -->
+  <section
+    aria-labelledby="unconfirmed-heading"
+    class="vellum-texture py-14 text-graphite sm:py-16"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        class="max-w-[62rem] border border-dashed border-graphite/35 p-6 sm:p-8"
+      >
+        <p
+          class="font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-blaze-deep"
+        >
+          Confirm with NFE
+        </p>
+        <h2
+          id="unconfirmed-heading"
+          class="mt-3 font-display text-[clamp(1.5rem,3vw,2rem)] font-bold uppercase leading-tight tracking-tight text-graphite"
+        >
+          Three scopes we have not claimed
+        </h2>
+        <p class="mt-4 max-w-[62ch] leading-relaxed text-graphite/75">
+          These appear in NFE's federal vendor profile but are not confirmed as
+          current offerings. Rather than list them as services we sell, we have
+          left them off the scope index above. Ask before you count on one.
+        </p>
+
+        <ul class="mt-6 flex flex-wrap gap-x-3 gap-y-3">
+          {
+            unconfirmed.map((item) => (
+              <li class="border border-graphite/30 px-3.5 py-2 font-mono text-xs uppercase tracking-[0.12em] text-graphite/75">
+                {item}
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="mt-6 font-mono text-xs leading-relaxed tracking-tight text-graphite/75">
+          <a
+            href={identity.phoneHref}
+            class="border-b-2 border-blaze-deep/30 transition-colors duration-200 hover:border-blaze-deep hover:text-blaze-deep"
+            >{identity.phone}</a
+          >
+          <span aria-hidden="true"> · </span>
+          <a
+            href={`mailto:${identity.email}`}
+            class="border-b-2 border-blaze-deep/30 transition-colors duration-200 hover:border-blaze-deep hover:text-blaze-deep"
+            >{identity.email}</a
+          >
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- To the bid room ---------------------------------------------------- -->
+  <section
+    aria-labelledby="bidroom-heading"
+    class="bg-blaze py-14 text-iron sm:py-16"
+  >
+    <div
+      class="mx-auto flex max-w-[86rem] flex-col gap-8 px-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <div class="max-w-[46ch]">
+        <h2
+          id="bidroom-heading"
+          class="font-display text-[clamp(1.85rem,4vw,3rem)] font-bold uppercase leading-[0.95] tracking-tight"
+        >
+          Need this on one page?
+        </h2>
+        <p class="mt-3 text-lg leading-relaxed text-iron/90">
+          The capability statement in the bid room carries these scopes plus
+          certifications, bonding, state licenses and past performance — ready
+          to drop into your bid file.
+        </p>
+
+        <a
+          href="/bid-room"
+          class="mt-7 inline-block border-2 border-iron bg-iron px-6 py-3.5 font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-colors duration-200 hover:bg-transparent hover:text-iron"
+          >Open the bid room</a
+        >
+      </div>
+
+      <dl
+        class="grid shrink-0 grid-cols-1 gap-x-8 gap-y-4 border-l-0 border-t border-iron/25 pt-6 sm:grid-cols-2 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
+      >
+        <div>
+          <dt
+            class="font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-iron/90"
+          >
+            Per-project bonding
+          </dt>
+          <dd class="mt-1 font-mono text-base font-medium tracking-tight text-iron">
+            {fmt.money(bonding.perProject)}
+          </dd>
+        </div>
+        <div>
+          <dt
+            class="font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-iron/90"
+          >
+            Aggregate bonding
+          </dt>
+          <dd class="mt-1 font-mono text-base font-medium tracking-tight text-iron">
+            {fmt.money(bonding.aggregate)}
+          </dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt
+            class="font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-iron/90"
+          >
+            NAICS
+          </dt>
+          <dd class="mt-1 font-mono text-base font-medium tracking-tight text-iron">
+            {identity.naics}
+            <span class="block text-xs font-normal tracking-tight text-iron/90"
+              >{identity.naicsLabel}</span
+            >
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  // Each list is its own ScrollTrigger parent, so scopes further down the
+  // page reveal on their own arrival rather than off the first one.
+  document.querySelectorAll("[data-scope-rows]").forEach((list) => {
+    const rows = list.querySelectorAll(":scope > li");
+    if (rows.length) reveal(rows, 0.05);
+  });
+</script>

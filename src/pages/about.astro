@@ -1,0 +1,273 @@
+---
+/**
+ * About. Every fact renders from `about` and `identity` in company.ts.
+ * `about.team` is intentionally empty — NFE has not supplied names or photos,
+ * so the page says so rather than inventing a roster.
+ */
+import { Image } from "astro:assets";
+import Page from "../layouts/Page.astro";
+import StationDivider from "../components/StationDivider.astro";
+import { about, certifications, identity } from "../data/company";
+import fleetTruck from "../assets/photos/fleet-truck.jpg";
+
+/** The two federal certifications that follow from who owns the company. */
+const womanOwnedCerts = certifications.filter(
+  (cert) => cert.id === "wosb" || cert.id === "edwosb",
+);
+
+/**
+ * The banner wraps to two values per row below xl. Hiding the separator at the
+ * midpoint keeps that grid at three columns instead of stranding an interpunct
+ * at the end of a line.
+ */
+const midSeparator = Math.floor(about.values.length / 2) - 1;
+
+const facts = [
+  { label: "Founded", value: String(about.founded), note: null },
+  { label: "Owner", value: about.ownerName, note: null },
+  { label: "Education", value: about.ownerEducation, note: null },
+  {
+    label: "Headquarters",
+    value: `${identity.hq.city}, ${identity.hq.state}`,
+    note: identity.hq.region,
+  },
+  { label: "NAICS", value: identity.naics, note: identity.naicsLabel },
+];
+---
+
+<Page
+  title={`About — ${identity.shortName} | Woman-owned heavy civil, ${identity.hq.city}, ${identity.hq.state}`}
+  description={`${identity.legalName} is a woman-owned heavy civil contractor founded in ${about.founded} in ${identity.hq.city}, ${identity.hq.state}. Owner: ${about.ownerName}.`}
+  heading={`Built in the ${identity.hq.region}`}
+  eyebrow={`About · Est. ${about.founded}`}
+  intro={`Woman-owned, self-performing heavy civil — bridges, roadway, underground utilities, excavation and blasting — run out of ${identity.hq.city}, ${identity.hq.state}.`}
+>
+  <!-- Story + company title block ---------------------------------------- -->
+  <section aria-labelledby="story-heading" class="vellum-texture py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        class="grid gap-12 lg:grid-cols-[minmax(0,62ch)_minmax(0,20rem)] lg:justify-between lg:gap-16"
+      >
+        <div>
+          <p
+            class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep"
+          >
+            The company
+          </p>
+          <h2
+            id="story-heading"
+            class="mt-3 max-w-[20ch] font-display text-[clamp(2rem,4.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+          >
+            A small town, on purpose
+          </h2>
+
+          <div data-story class="mt-8 max-w-[62ch] space-y-6">
+            {
+              about.story.map((paragraph) => (
+                <p class="text-lg leading-relaxed text-graphite/75">
+                  {paragraph}
+                </p>
+              ))
+            }
+          </div>
+        </div>
+
+        <dl
+          class="grid h-fit gap-px border border-graphite/20 bg-graphite/20 sm:grid-cols-2 lg:grid-cols-1"
+        >
+          {
+            facts.map((fact) => (
+              <div class="bg-vellum p-4">
+                <dt class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-graphite/75">
+                  {fact.label}
+                </dt>
+                <dd class="mt-1.5 break-words font-mono text-sm leading-snug text-graphite">
+                  {fact.value}
+                  {fact.note && (
+                    <span class="mt-1 block text-[0.6875rem] leading-relaxed text-graphite/75">
+                      {fact.note}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <StationDivider station="STA 1+00" label="Values" />
+
+  <!-- Values, as a jobsite banner ----------------------------------------- -->
+  <section aria-labelledby="values-heading" class="bg-iron pb-16 sm:pb-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <h2
+        id="values-heading"
+        class="font-display text-[clamp(2rem,4.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        What the banner says
+      </h2>
+
+      <div
+        class="relative mt-8 border-2 border-blaze/60 bg-gunmetal px-6 py-10 sm:px-12 sm:py-14"
+      >
+        <span
+          aria-hidden="true"
+          class="absolute left-3 top-3 h-2.5 w-2.5 rounded-full border border-steel/60"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute right-3 top-3 h-2.5 w-2.5 rounded-full border border-steel/60"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute bottom-3 left-3 h-2.5 w-2.5 rounded-full border border-steel/60"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute bottom-3 right-3 h-2.5 w-2.5 rounded-full border border-steel/60"
+        ></span>
+
+        <!--
+          Two values per row until the full string fits on one line at xl.
+          Dropping the middle separator keeps the grid at three columns, so a
+          separator never hangs at the end of a wrapped line.
+        -->
+        <ul
+          data-banner
+          class="grid grid-cols-[auto_auto_auto] items-baseline justify-center justify-items-center gap-x-4 gap-y-3 xl:grid-cols-[repeat(7,auto)] xl:gap-x-6"
+        >
+          {
+            about.values.map((value, i) => (
+              <Fragment>
+                <li class="font-display text-[clamp(1.5rem,5vw,3rem)] font-bold uppercase leading-tight tracking-[0.05em] text-vellum">
+                  {value}
+                </li>
+                {i < about.values.length - 1 && (
+                  <li
+                    aria-hidden="true"
+                    class={`font-mono text-[clamp(1.25rem,4vw,2.25rem)] leading-none text-blaze ${
+                      i === midSeparator ? "hidden xl:block" : ""
+                    }`}
+                  >
+                    ·
+                  </li>
+                )}
+              </Fragment>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team + memberships --------------------------------------------------- -->
+  <section aria-labelledby="team-heading" class="bg-gunmetal py-16 sm:py-20">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
+        <Image
+          src={fleetTruck}
+          alt="A North Fork Enterprises dump truck parked on a gravel road at the edge of the timber."
+          widths={[480, 960]}
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          loading="lazy"
+          class="aspect-[4/3] w-full border border-steel/20 object-cover"
+        />
+
+        <div>
+          <h2
+            id="team-heading"
+            class="font-display text-[clamp(2rem,4.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+          >
+            Who you would be working with
+          </h2>
+
+          {
+            about.team.length > 0 ? (
+              <ul class="mt-6 space-y-3">
+                {about.team.map((member) => (
+                  <li>
+                    <p class="font-display text-xl font-semibold uppercase tracking-[0.06em] text-vellum">
+                      {member.name}
+                    </p>
+                    <p class="font-mono text-sm text-steel">{member.role}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="mt-5 max-w-[52ch] leading-relaxed text-vellum/70">
+                We have not published a roster here. We introduce the office and
+                field leadership — names, roles, and the jobs they ran — on
+                request.
+              </p>
+            )
+          }
+
+          <p class="mt-8 label-mono">Memberships</p>
+          <ul class="mt-3 space-y-2">
+            {
+              about.memberships.map((membership) => (
+                <li class="flex items-baseline gap-2.5 font-mono text-sm text-vellum/85">
+                  <span class="text-blaze" aria-hidden="true">
+                    ·
+                  </span>
+                  {membership}
+                </li>
+              ))
+            }
+          </ul>
+
+          <p class="mt-8 label-mono">Owner</p>
+          <p class="mt-3 max-w-[52ch] leading-relaxed text-vellum/70">
+            {about.ownerName} owns {identity.legalName}.
+          </p>
+          <ul class="mt-3 space-y-2">
+            {
+              womanOwnedCerts.map((cert) => (
+                <li class="break-words font-mono text-sm leading-snug text-vellum/85">
+                  <span class="text-blaze">{cert.abbr}</span> — {cert.name} ·{" "}
+                  {cert.detail}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Close ---------------------------------------------------------------- -->
+  <section class="border-t border-steel/25 bg-iron py-12">
+    <div
+      class="mx-auto flex max-w-[86rem] flex-wrap items-center gap-x-8 gap-y-4 px-5 sm:px-8"
+    >
+      <p class="label-mono">Next</p>
+      <a
+        href="/projects"
+        class="redline font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >See the work →</a
+      >
+      <a
+        href="/bid-room"
+        class="redline font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >Bid room →</a
+      >
+      <a
+        href="/contact"
+        class="redline font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >Contact →</a
+      >
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const paragraphs = document.querySelectorAll("[data-story] p");
+  if (paragraphs.length) reveal(paragraphs, 0.06);
+
+  const values = document.querySelectorAll("[data-banner] li");
+  if (values.length) reveal(values, 0.06);
+</script>

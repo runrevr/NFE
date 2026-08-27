@@ -1,0 +1,293 @@
+---
+/**
+ * Safety. The EMR is the number estimators come here for, and NFE has not
+ * supplied one — `safety.emr` is null, so the cell renders an honest
+ * placeholder. Never substitute a figure. The cell fills itself in the moment
+ * company.ts carries a real rate.
+ */
+import { Image } from "astro:assets";
+import Page from "../layouts/Page.astro";
+import StationDivider from "../components/StationDivider.astro";
+import {
+  commendations,
+  explosivesLicense,
+  projects,
+  safety,
+} from "../data/company";
+import sullivan from "../assets/photos/sullivan.jpg";
+
+const hasEmr = safety.emr !== null;
+const emrValue = hasEmr ? String(safety.emr) : "Available on request";
+const emrNote = hasEmr
+  ? safety.emrYear !== null
+    ? `Rating year ${safety.emrYear}`
+    : "Rating year available on request."
+  : "Not published here. Ask for the current rate and the year it was issued.";
+
+/** The stewardship contract the case study and both commendations come from. */
+const usfs = projects.find((p) => p.slug === "usfs-road-reconstruction");
+
+/** Live-traffic work, captioned with the job it is actually from. */
+const sullivanJob = projects.find((p) => p.slug === "sullivan-road");
+---
+
+<Page
+  title="Safety — North Fork Enterprises"
+  description="How North Fork Enterprises runs public work alongside live traffic and active utilities, its federal past-performance ratings, and where to get the EMR."
+  heading="Safety, stated plainly"
+  eyebrow="Safety"
+  intro="Public work alongside live traffic and active utilities. Below: how the work is run, the federal past-performance record, and where to get the numbers we have not published here."
+>
+  <!-- Program + the numbers estimators check ------------------------------- -->
+  <section
+    aria-labelledby="program-heading"
+    class="vellum-texture py-16 sm:py-20"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        class="grid gap-12 lg:grid-cols-[minmax(0,62ch)_minmax(0,22rem)] lg:justify-between lg:gap-16"
+      >
+        <div>
+          <p
+            class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-blaze-deep"
+          >
+            The program
+          </p>
+          <h2
+            id="program-heading"
+            class="mt-3 max-w-[22ch] font-display text-[clamp(2rem,4.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+          >
+            How the work gets run
+          </h2>
+
+          <div data-program class="mt-8 max-w-[62ch] space-y-6">
+            {
+              safety.program.map((paragraph) => (
+                <p class="text-lg leading-relaxed text-graphite/75">
+                  {paragraph}
+                </p>
+              ))
+            }
+          </div>
+        </div>
+
+        <dl class="grid h-fit gap-px border border-graphite/20 bg-graphite/20">
+          <div id="emr" class="bg-vellum p-5">
+            <dt
+              class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-graphite/75"
+            >
+              EMR
+            </dt>
+            <dd class="mt-2 font-mono text-xl leading-tight text-graphite">
+              {emrValue}
+              <span
+                class="mt-2 block text-[0.6875rem] leading-relaxed text-graphite/75"
+                >{emrNote}</span
+              >
+            </dd>
+          </div>
+
+          <div class="bg-vellum p-5">
+            <dt
+              class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-graphite/75"
+            >
+              {explosivesLicense.label}
+            </dt>
+            <dd
+              class="mt-2 break-words font-mono text-sm leading-snug text-graphite"
+            >
+              {explosivesLicense.value}
+            </dd>
+          </div>
+
+          <div class="bg-vellum p-5">
+            <dt
+              class="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-graphite/75"
+            >
+              Federal past performance
+            </dt>
+            <dd class="mt-2">
+              <ul class="space-y-1.5">
+                {
+                  commendations.map((item) => (
+                    <li class="flex flex-wrap items-baseline justify-between gap-x-4 font-mono text-sm text-graphite">
+                      <span>{item.category}</span>
+                      <span class="text-blaze-deep">{item.rating}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+              <span
+                class="mt-2 block font-mono text-[0.6875rem] leading-relaxed text-graphite/75"
+                >{commendations[0].agency}</span
+              >
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Case study ----------------------------------------------------------- -->
+  <section aria-labelledby="case-heading" class="bg-iron pb-4">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="border-l-2 border-blaze bg-gunmetal p-6 sm:p-10">
+        <p class="label-mono">Case study</p>
+        <h2
+          id="case-heading"
+          class="mt-3 max-w-[26ch] font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold uppercase leading-[0.98] tracking-tight text-vellum"
+        >
+          {safety.caseStudy.title}
+        </h2>
+        <p class="mt-5 max-w-[62ch] text-lg leading-relaxed text-vellum/80">
+          {safety.caseStudy.body}
+        </p>
+
+        {
+          usfs && usfs.quantities.length > 0 && (
+            <dl class="mt-8 grid gap-x-10 gap-y-5 border-t border-steel/25 pt-6 sm:grid-cols-3">
+              {usfs.quantities.map((quantity) => (
+                <div>
+                  <dt class="label-mono">{quantity.label}</dt>
+                  <dd class="mt-1.5 font-mono text-lg leading-none text-blaze">
+                    {quantity.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+
+        {
+          usfs && (
+            <p class="mt-6 font-mono text-[0.6875rem] leading-relaxed text-steel">
+              {usfs.name} · {usfs.owner}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <StationDivider station="STA 1+00" label="Past performance" />
+
+  <!-- Commendations -------------------------------------------------------- -->
+  <section
+    aria-labelledby="commendations-heading"
+    class="bg-gunmetal py-16 sm:py-20"
+  >
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <h2
+        id="commendations-heading"
+        class="max-w-[24ch] font-display text-[clamp(2rem,4.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Rated Exceptional. Twice.
+      </h2>
+      <p class="mt-3 max-w-[54ch] text-vellum/70">
+        Both ratings come from the same contracting specialist on the same
+        stewardship contract.
+      </p>
+
+      <div data-commendations class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-14">
+        {
+          commendations.map((item) => (
+            <figure class="border-t border-steel/30 pt-6">
+              <p class="label-mono">
+                {item.category} · {item.rating}
+              </p>
+              <blockquote class="mt-4 font-display text-2xl font-semibold leading-[1.25] tracking-tight text-vellum sm:text-[1.75rem]">
+                “{item.pullQuote}”
+              </blockquote>
+              <figcaption class="mt-4 font-mono text-xs leading-relaxed tracking-tight text-steel">
+                {item.attribution}
+                <br />
+                {item.agency}
+              </figcaption>
+
+              <details class="mt-5">
+                <summary class="cursor-pointer font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-steel marker:text-blaze hover:text-vellum">
+                  Full evaluation text
+                </summary>
+                <p class="mt-3 max-w-[62ch] leading-relaxed text-vellum/70">
+                  {item.fullQuote}
+                </p>
+              </details>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Live traffic --------------------------------------------------------- -->
+  {
+    sullivanJob && sullivanJob.alt && (
+      <section aria-labelledby="traffic-heading" class="bg-iron py-16 sm:py-20">
+        <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+          <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+            <figure>
+              <Image
+                src={sullivan}
+                alt={sullivanJob.alt}
+                widths={[480, 960]}
+                sizes="(min-width: 1024px) 46vw, 100vw"
+                loading="lazy"
+                class="aspect-[4/3] w-full border border-steel/20 object-cover"
+              />
+              <figcaption class="mt-3 font-mono text-[0.6875rem] leading-relaxed text-steel">
+                {sullivanJob.name} · {sullivanJob.owner}
+              </figcaption>
+            </figure>
+
+            <div>
+              <h2
+                id="traffic-heading"
+                class="font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+              >
+                Working next to the public
+              </h2>
+              <p class="mt-5 max-w-[52ch] text-lg leading-relaxed text-vellum/80">
+                {sullivanJob.scope}
+              </p>
+              <a
+                href="/projects"
+                class="redline mt-7 inline-block font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+              >
+                All projects →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Close ---------------------------------------------------------------- -->
+  <section class="border-t border-steel/25 bg-iron py-12">
+    <div
+      class="mx-auto flex max-w-[86rem] flex-wrap items-center gap-x-8 gap-y-4 px-5 sm:px-8"
+    >
+      <p class="label-mono">Need the paperwork</p>
+      <a
+        href="/bid-room"
+        class="redline font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >Bid room →</a
+      >
+      <a
+        href="/contact"
+        class="redline font-display text-base font-semibold uppercase tracking-[0.1em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >Contact →</a
+      >
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { reveal } from "../scripts/motion";
+
+  const paragraphs = document.querySelectorAll("[data-program] p");
+  if (paragraphs.length) reveal(paragraphs, 0.06);
+
+  const figures = document.querySelectorAll("[data-commendations] figure");
+  if (figures.length) reveal(figures, 0.08);
+</script>

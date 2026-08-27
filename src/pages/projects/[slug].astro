@@ -1,0 +1,360 @@
+---
+/**
+ * Plan-sheet project detail. One page per entry in `projects`.
+ *
+ * Every value on this page is read from company.ts. Cells whose data is null
+ * are dropped rather than filled in, and internal `verify` flags stay internal.
+ */
+import { Image } from "astro:assets";
+import Page from "../../layouts/Page.astro";
+import { projects, commendations, fmt } from "../../data/company";
+
+import PlanSheetRamsey from "../../components/PlanSheetRamsey.astro";
+import PlanSheetCulverts from "../../components/PlanSheetCulverts.astro";
+import PlanSheetBridgeSwap from "../../components/PlanSheetBridgeSwap.astro";
+import PlanSheetRoadway from "../../components/PlanSheetRoadway.astro";
+
+import i90Photo from "../../assets/photos/featured-i90.jpg";
+import ramseyPhoto from "../../assets/photos/featured-ramsey.jpg";
+import willowCreekPhoto from "../../assets/photos/featured-willow-creek.jpg";
+import sullivanPhoto from "../../assets/photos/sullivan.jpg";
+import tribalHousingPhoto from "../../assets/photos/tribal-housing.jpg";
+
+const photos: Record<string, ImageMetadata> = {
+  "featured-i90": i90Photo,
+  "featured-ramsey": ramseyPhoto,
+  "featured-willow-creek": willowCreekPhoto,
+  sullivan: sullivanPhoto,
+  "tribal-housing": tribalHousingPhoto,
+};
+
+export function getStaticPaths() {
+  return projects.map((project, index) => ({
+    params: { slug: project.slug },
+    props: { project, index },
+  }));
+}
+
+const { project, index } = Astro.props;
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const sheetNo = `PR-${pad(index + 1)}`;
+const sheetOf = `${pad(index + 1)} OF ${pad(projects.length)}`;
+
+const photo = project.photo ? photos[project.photo] : null;
+
+/** Optional cells are dropped, never filled with a placeholder number. */
+const titleCells = [
+  { label: "Project", value: project.name, wide: true },
+  { label: "Owner", value: project.owner ?? "Available on request" },
+  ...(project.prime ? [{ label: "Prime", value: project.prime }] : []),
+  { label: "Location", value: project.location },
+  ...(project.year ? [{ label: "Year", value: String(project.year) }] : []),
+  ...(project.value
+    ? [{ label: "Value", value: fmt.money(project.value) }]
+    : []),
+];
+
+/* Four projects have a hand-drawn sheet keyed to them in the data. The rest
+   render without one rather than borrowing a drawing that isn't theirs. */
+const planSheets = {
+  ramsey: PlanSheetRamsey,
+  culverts: PlanSheetCulverts,
+  "bridge-swap": PlanSheetBridgeSwap,
+  "exploded-roadway": PlanSheetRoadway,
+} as const;
+
+const PlanSheet = project.planSheet
+  ? (planSheets[project.planSheet as keyof typeof planSheets] ?? null)
+  : null;
+
+const hasQuantities = project.quantities.length > 0;
+const hasCommendation = "commendation" in project && project.commendation;
+
+const similar = projects
+  .map((p, i) => ({ p, i }))
+  .filter(({ p }) => p.sector === project.sector && p.slug !== project.slug)
+  .slice(0, 3);
+
+const trim = (s: string, max = 155) =>
+  s.length <= max ? s : `${s.slice(0, s.lastIndexOf(" ", max))}…`;
+
+const cell =
+  "min-w-0 grow border-b border-r border-steel/25 px-4 py-3.5 basis-1/2 sm:basis-1/3 lg:basis-[11rem]";
+const cellWide =
+  "min-w-0 grow border-b border-r border-steel/25 px-4 py-3.5 basis-full sm:basis-1/2 lg:basis-[20rem]";
+---
+
+<Page
+  title={`${project.name} — ${project.sector} | North Fork Enterprises`}
+  description={trim(project.scope)}
+  heading={project.name}
+  eyebrow={project.sector}
+>
+  <!-- title block ------------------------------------------------------- -->
+  <section class="bg-iron pt-10 sm:pt-12">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <a
+        href="/projects"
+        class="redline inline-block font-display text-sm font-semibold uppercase tracking-[0.12em] text-blaze transition-[background-size] duration-200 hover:redline-on"
+        >← All projects</a
+      >
+
+      <div class="mt-6 overflow-hidden border-2 border-steel/45">
+        <dl class="-mb-px -mr-px flex flex-wrap">
+          {
+            titleCells.map((item) => (
+              <div class={item.wide ? cellWide : cell}>
+                <dt class="label-mono">{item.label}</dt>
+                <dd
+                  class={`mt-1.5 break-words font-mono leading-snug text-vellum ${item.wide ? "text-lg" : "text-[0.9375rem]"}`}
+                >
+                  {item.value}
+                </dd>
+              </div>
+            ))
+          }
+
+          <div
+            class="min-w-0 grow basis-full border-b border-r border-steel/25 bg-gunmetal px-4 py-3.5 sm:basis-1/3 lg:basis-[12rem]"
+          >
+            <dt class="label-mono">Sheet</dt>
+            <dd
+              class="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 font-mono leading-none"
+            >
+              <span class="text-2xl font-medium tracking-tight text-blaze"
+                >{sheetNo}</span
+              >
+              <span class="text-[0.6875rem] tracking-[0.14em] text-steel"
+                >SHEET {sheetOf}</span
+              >
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- scope --------------------------------------------------------------- -->
+  <section class="bg-iron py-12 sm:py-16">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <p class="max-w-[46ch] font-mono text-lg leading-snug text-blaze sm:text-xl">
+        {project.headline}
+      </p>
+
+      <h2
+        class="mt-10 font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-vellum"
+      >
+        Scope
+      </h2>
+      <p class="mt-4 max-w-[62ch] text-lg leading-relaxed text-vellum/80">
+        {project.scope}
+      </p>
+    </div>
+  </section>
+
+  <!-- living plan sheet ---------------------------------------------------- -->
+  {PlanSheet && <PlanSheet />}
+
+  <!-- quantities ---------------------------------------------------------- -->
+  {
+    hasQuantities && (
+      <section class="border-y border-graphite/15 bg-vellum py-12 text-graphite sm:py-16">
+        <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+          <h2 class="font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-graphite">
+            Quantities
+          </h2>
+          <p class="mt-3 max-w-[54ch] leading-relaxed text-graphite/75">
+            As published for this project. Line-item bid quantities are
+            available on request.
+          </p>
+
+          <div class="mt-7 max-w-[46rem] overflow-x-auto border border-graphite/25">
+            <table class="w-full border-collapse text-left">
+              <caption class="sr-only">Quantities — {project.name}</caption>
+              <thead>
+                <tr class="border-b border-graphite/25">
+                  <th
+                    scope="col"
+                    class="px-4 py-3 font-mono text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-graphite/75"
+                  >
+                    Item
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-4 py-3 text-right font-mono text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-graphite/75"
+                  >
+                    Quantity
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {project.quantities.map((q) => (
+                  <tr class="border-b border-graphite/15 last:border-b-0">
+                    <th
+                      scope="row"
+                      class="px-4 py-3.5 text-[0.9375rem] font-normal leading-snug text-graphite"
+                    >
+                      {q.label}
+                    </th>
+                    <td class="whitespace-nowrap px-4 py-3.5 text-right font-mono text-[0.9375rem] text-blaze-deep">
+                      {q.value}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- photo --------------------------------------------------------------- -->
+  {
+    photo && (
+      <section class="bg-iron py-12 sm:py-16">
+        <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+          <figure class="max-w-[62rem] border border-steel/25 p-2 sm:p-3">
+            <div class="aspect-[3/2] overflow-hidden">
+              <Image
+                src={photo}
+                alt={project.alt ?? project.name}
+                widths={[640, 1280]}
+                sizes="(min-width: 1024px) 62rem, 92vw"
+                loading="lazy"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <figcaption class="mt-2.5 flex flex-wrap justify-between gap-x-4 gap-y-1 px-1 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-steel">
+              <span>{project.name}</span>
+              <span>{project.location}</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- past performance ---------------------------------------------------- -->
+  {
+    hasCommendation && (
+      <section class="border-y border-steel/25 bg-gunmetal py-12 sm:py-16">
+        <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+          <h2 class="font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-vellum">
+            Past performance
+          </h2>
+          <p class="mt-3 max-w-[56ch] leading-relaxed text-vellum/75">
+            Verbatim from the contracting officer's evaluation of this contract.
+          </p>
+
+          <div class="mt-8 grid gap-6 md:grid-cols-2">
+            {commendations.map((c) => (
+              <figure class="flex flex-col border border-steel/25 bg-iron p-6 sm:p-8">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span class="font-display text-sm font-semibold uppercase tracking-[0.14em] text-vellum/75">
+                    {c.category}
+                  </span>
+                  <span class="border border-blaze/50 px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-blaze">
+                    {c.rating}
+                  </span>
+                </div>
+
+                <blockquote class="mt-5 text-[1.3125rem] leading-snug text-vellum sm:text-2xl">
+                  “{c.pullQuote}”
+                </blockquote>
+
+                <figcaption class="mt-auto pt-6 font-mono text-[0.6875rem] uppercase leading-relaxed tracking-[0.12em] text-steel">
+                  {c.attribution}
+                  <span class="block text-vellum/70">{c.agency}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- similar work -------------------------------------------------------- -->
+  {
+    similar.length > 0 && (
+      <section class="bg-iron py-12 sm:py-16">
+        <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+          <h2 class="font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-vellum">
+            Similar work
+          </h2>
+          <p class="mt-3 max-w-[56ch] leading-relaxed text-vellum/75">
+            Other {project.sector} jobs on file.
+          </p>
+
+          <div
+            data-similar
+            class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {similar.map(({ p, i }) => (
+              <a
+                href={`/projects/${p.slug}`}
+                class="flex flex-col border border-steel/20 bg-gunmetal p-5 transition-colors duration-200 hover:border-blaze/60"
+              >
+                <span class="font-mono text-[0.6875rem] tracking-[0.14em] text-steel">
+                  PR-{pad(i + 1)}
+                </span>
+                <h3 class="mt-2 font-display text-xl font-semibold uppercase leading-tight tracking-tight text-vellum">
+                  {p.name}
+                </h3>
+                <p class="mt-1 text-sm leading-relaxed text-vellum/75">
+                  {p.owner ?? p.location}
+                </p>
+                <p class="mt-auto pt-4 font-mono text-sm leading-snug text-blaze">
+                  {p.headline}
+                </p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- one-pager ----------------------------------------------------------- -->
+  <section class="border-t border-steel/25 bg-iron py-12 sm:py-16">
+    <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div
+        class="flex flex-col gap-6 border border-steel/25 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10"
+      >
+        <div>
+          <p class="label-mono">Project one-pager</p>
+          <p class="mt-2.5 max-w-[52ch] leading-relaxed text-vellum/75">
+            The per-project PDF has not been issued. Certifications, bonding,
+            licenses and references are in the bid room now.
+          </p>
+        </div>
+
+        <div class="flex shrink-0 flex-col gap-3 lg:items-end">
+          <span
+            aria-disabled="true"
+            class="inline-flex cursor-not-allowed flex-wrap items-center gap-x-3 gap-y-1 border border-dashed border-steel/45 px-5 py-3 font-display text-sm font-semibold uppercase tracking-[0.12em] text-steel"
+          >
+            Download project one-pager (PDF)
+            <span class="font-mono text-[0.6875rem] tracking-[0.14em]"
+              >Not issued</span
+            >
+          </span>
+          <a
+            href="/bid-room"
+            class="redline self-start font-display text-sm font-semibold uppercase tracking-[0.12em] text-blaze transition-[background-size] duration-200 hover:redline-on lg:self-end"
+            >Open the bid room →</a
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { reveal } from "../../scripts/motion";
+
+  const cards = document.querySelectorAll("[data-similar] > a");
+  if (cards.length) reveal(cards, 0.06);
+</script>

@@ -1,0 +1,296 @@
+---
+/**
+ * Living plan sheet #2 — Lochsa US-12 culvert corridor (blueprint §9.2.2).
+ *
+ * A long profile of the highway with one tick per culvert crossing. The tick
+ * count is generated from `stats` — the drawing IS the number, so it can never
+ * drift from the data.
+ *
+ * The SVG is authored in its FINISHED state. plan-sheet-culverts.ts hides and
+ * offsets elements only when motion is allowed, then animates them back, so
+ * reduced-motion and no-JS visitors see the completed drawing immediately.
+ */
+import { projects, stats } from "../data/company";
+
+const job = projects.find((p) => p.slug === "lochsa-us-12");
+const stat = stats.find((s) => s.id === "culverts");
+
+const count = stat?.value ?? 0;
+const suffix = stat?.suffix ?? "";
+const statLabel = stat?.label ?? "Culvert crossings";
+
+type Quantity = { label: string; value: string };
+const quantities: ReadonlyArray<Quantity> = job?.quantities ?? [];
+
+/* ---------------------------------------------------------------------------
+ * Corridor geometry. Deterministic, and deliberately dimensionless: NFE has
+ * not supplied stationing, grades or culvert sizes, so the profile is drawn
+ * "not to scale" and carries no invented numbers.
+ * ------------------------------------------------------------------------ */
+const X0 = 44;
+const X1 = 916;
+const FILL_TOE = 366;
+const RIVER_TOP = 372;
+
+/** Undulating mountain-corridor grade. */
+const grade = (x: number) =>
+  214 + 25 * Math.sin((x - X0) / 132) + 11 * Math.sin((x - X0) / 47 + 0.9);
+
+const samples: number[] = [];
+for (let x = X0; x <= X1; x += 8) samples.push(x);
+if (samples[samples.length - 1] !== X1) samples.push(X1);
+
+const pt = (x: number, y: number) => `${x.toFixed(1)} ${y.toFixed(1)}`;
+const topEdge = samples.map((x) => pt(x, grade(x)));
+const botEdge = samples.map((x) => pt(x, grade(x) + 9));
+
+const gradePath = `M ${topEdge.join(" L ")}`;
+const pavementPath = `M ${topEdge.join(" L ")} L ${[...botEdge]
+  .reverse()
+  .join(" L ")} Z`;
+const embankmentPath = `M ${botEdge.join(" L ")} L ${pt(X1, FILL_TOE)} L ${pt(
+  X0,
+  FILL_TOE,
+)} Z`;
+
+/** One tick per culvert crossing, straight off the counted value. */
+const TICK_X0 = 78;
+const TICK_X1 = 882;
+const spacing = count > 1 ? (TICK_X1 - TICK_X0) / (count - 1) : 0;
+const ticks = Array.from({ length: count }, (_, i) => {
+  const x = TICK_X0 + i * spacing;
+  const y = grade(x);
+  return { i, x1: x, y1: y + 10, x2: x - 5, y2: y + 33 };
+});
+
+/** Compact repeating water line. */
+const wave = (y: number, amp: number) =>
+  `M ${X0} ${y} q 15 ${-amp} 30 0 ` + "t 30 0 ".repeat(28);
+
+/** The tick the "typical" callout points at. */
+const callTick = ticks[Math.floor(ticks.length * 0.28)] ?? {
+  x1: 300,
+  y1: 240,
+};
+---
+
+<section
+  id="plan-sheet-culverts"
+  class="plan-grid border-y border-graphite/15 py-16 text-graphite sm:py-20"
+  data-count={count}
+  data-suffix={suffix}
+>
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2
+        class="max-w-[20ch] font-display text-[clamp(2rem,4.5vw,3.25rem)] font-bold uppercase leading-none tracking-tight text-graphite"
+      >
+        <span class="font-mono font-medium tracking-tight">{count}</span> culverts,
+        one highway
+      </h2>
+
+      <div
+        class="border border-graphite/30 px-4 py-2.5 font-mono text-[0.6875rem] leading-relaxed tracking-tight text-graphite/70"
+      >
+        {job?.owner && <div>{job.owner.toUpperCase()}</div>}
+        {job?.name && <div>{job.name.toUpperCase()}</div>}
+        {job?.prime && <div>SUB TO {job.prime.toUpperCase()}</div>}
+        <div class="text-blaze-deep">SHT C-102</div>
+      </div>
+    </div>
+
+    <div class="mt-10 border border-graphite/25 bg-vellum/60 p-3 sm:p-6">
+      <svg
+        viewBox="0 0 960 460"
+        class="h-auto w-full"
+        role="img"
+        aria-labelledby="culverts-title culverts-desc"
+      >
+        <title id="culverts-title"
+          >Profile of the US-12 Lochsa corridor showing every culvert crossing</title
+        >
+        <desc id="culverts-desc"
+          >Long profile, not to scale: the highway grade runs left to right over
+          an embankment above the Lochsa River, with one tick mark drawn for
+          each culvert crossing set along the corridor. {statLabel}: {count}{
+            suffix
+          }.</desc
+        >
+
+        <defs>
+          <pattern
+            id="pc-earth"
+            width="14"
+            height="14"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line x1="0" y1="0" x2="0" y2="14" stroke="#2a2c30" stroke-opacity="0.14" stroke-width="1"></line>
+          </pattern>
+          <marker
+            id="pc-arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="7"
+            markerHeight="7"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c8541f"></path>
+          </marker>
+          <clipPath id="pc-fill-clip">
+            <rect id="pc-fill-mask" x="44" y="150" width="872" height="230"></rect>
+          </clipPath>
+        </defs>
+
+        <!-- embankment carrying the road -->
+        <g clip-path="url(#pc-fill-clip)">
+          <path d={embankmentPath} fill="url(#pc-earth)"></path>
+        </g>
+
+        <!-- culvert crossings: one tick per crossing, counted from the data -->
+        <g id="pc-ticks" stroke="#a84214" stroke-width="2" stroke-linecap="round">
+          {
+            ticks.map((t) => (
+              <line
+                class="pc-tick"
+                x1={t.x1.toFixed(1)}
+                y1={t.y1.toFixed(1)}
+                x2={t.x2.toFixed(1)}
+                y2={t.y2.toFixed(1)}
+              />
+            ))
+          }
+        </g>
+
+        <!-- highway ribbon -->
+        <path id="pc-pavement" d={pavementPath} fill="#2a2c30" fill-opacity="0.85"></path>
+        <path
+          id="pc-grade"
+          d={gradePath}
+          fill="none"
+          stroke="#2a2c30"
+          stroke-width="2.5"></path>
+
+        <!-- the Lochsa -->
+        <g id="pc-river">
+          <rect
+            x="44"
+            y={RIVER_TOP}
+            width="872"
+            height="46"
+            fill="#8b939e"
+            fill-opacity="0.14"></rect>
+          <g fill="none" stroke="#8b939e" stroke-width="2">
+            <path class="pc-wave" d={wave(RIVER_TOP + 11, 8)}></path>
+            <path class="pc-wave" d={wave(RIVER_TOP + 24, -8)}></path>
+            <path class="pc-wave" d={wave(RIVER_TOP + 37, 8)}></path>
+          </g>
+        </g>
+
+        <!-- pattern extents, deliberately undimensioned -->
+        <g id="pc-dims" stroke="#c8541f" stroke-width="1.25" fill="none">
+          <path
+            class="pc-dim"
+            d="M 78 448 L 882 448"
+            marker-start="url(#pc-arrow)"
+            marker-end="url(#pc-arrow)"></path>
+          <g stroke-dasharray="4 4" stroke-opacity="0.5">
+            <path class="pc-ext" d="M 78 430 L 78 456"></path>
+            <path class="pc-ext" d="M 882 430 L 882 456"></path>
+          </g>
+        </g>
+
+        <!-- callout leaders -->
+        <g
+          id="pc-callouts"
+          stroke="#2a2c30"
+          stroke-width="1.25"
+          fill="none"
+          stroke-opacity="0.65"
+        >
+          <path
+            d={`M ${callTick.x1.toFixed(1)} ${(callTick.y1 + 16).toFixed(1)} L 330 150 L 410 150`}
+          ></path>
+          <path d="M 700 218 L 700 132 L 760 132"></path>
+        </g>
+
+        <!-- labels -->
+        <g id="pc-labels" font-family="IBM Plex Mono, monospace" font-size="15" fill="#2a2c30">
+          <rect x="48" y="386" width="158" height="22" fill="#efeae0"></rect>
+          <text x="418" y="155">CULVERT CROSSING (TYP.)</text>
+          <text x="768" y="137">US-12 ROADWAY</text>
+          <text x="54" y="403" fill="#2a2c30" fill-opacity="0.75">LOCHSA RIVER</text>
+          <text x="480" y="440" fill="#a84214" text-anchor="middle"
+            >CULVERT CORRIDOR — NOT TO SCALE</text
+          >
+        </g>
+
+        <!-- running total -->
+        <text
+          id="pc-count"
+          x="920"
+          y="62"
+          text-anchor="end"
+          font-family="IBM Plex Mono, monospace"
+          font-size="46"
+          font-weight="500"
+          fill="#c8541f">{count}{suffix}</text
+        >
+        <text
+          x="920"
+          y="84"
+          text-anchor="end"
+          font-family="IBM Plex Mono, monospace"
+          font-size="13"
+          letter-spacing="1.4"
+          fill="#2a2c30"
+          fill-opacity="0.75">{statLabel.toUpperCase()}</text
+        >
+      </svg>
+    </div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,62ch)_minmax(0,20rem)] lg:gap-12">
+      {
+        job?.scope && (
+          <p class="text-[0.9375rem] leading-relaxed text-graphite/75">
+            {job.scope}
+          </p>
+        )
+      }
+
+      <dl
+        class="grid grid-cols-2 gap-px border border-graphite/20 bg-graphite/20 font-mono lg:grid-cols-1"
+      >
+        {
+          quantities.map((q) => (
+            <div class="bg-vellum px-4 py-3">
+              <dt class="text-[0.6875rem] uppercase tracking-[0.1em] text-graphite/75">
+                {q.label}
+              </dt>
+              <dd class="mt-1 text-lg font-medium tracking-tight text-graphite">
+                {q.value}
+              </dd>
+            </div>
+          ))
+        }
+        {
+          job?.prime && (
+            <div class="bg-vellum px-4 py-3">
+              <dt class="text-[0.6875rem] uppercase tracking-[0.1em] text-graphite/75">
+                Prime contractor
+              </dt>
+              <dd class="mt-1 text-lg font-medium tracking-tight text-graphite">
+                {job.prime}
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../scripts/plan-sheet-culverts";
+</script>
