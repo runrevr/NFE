@@ -136,7 +136,7 @@ const cellWide =
   </section>
 
   <!-- scope --------------------------------------------------------------- -->
-  <section class="bg-iron py-12 sm:py-16">
+  <section class="section-y bg-iron">
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <p class="max-w-[46ch] font-mono text-lg leading-snug text-blaze sm:text-xl">
         {project.headline}
@@ -163,7 +163,7 @@ const cellWide =
   <!-- quantities ---------------------------------------------------------- -->
   {
     hasQuantities && (
-      <section class="border-y border-graphite/15 bg-vellum py-12 text-graphite sm:py-16">
+      <section class="section-y border-y border-graphite/15 bg-vellum text-graphite">
         <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
           <h2 class="font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-graphite">
             Quantities
@@ -217,7 +217,7 @@ const cellWide =
   <!-- photo --------------------------------------------------------------- -->
   {
     photo && (
-      <section class="bg-iron py-12 sm:py-16">
+      <section class="section-y bg-iron">
         <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
           <figure class="max-w-[62rem] border border-steel/25 p-2 sm:p-3">
             <div class="aspect-[3/2] overflow-hidden">
@@ -243,7 +243,7 @@ const cellWide =
   <!-- past performance ---------------------------------------------------- -->
   {
     hasCommendation && (
-      <section class="border-y border-steel/25 bg-gunmetal py-12 sm:py-16">
+      <section class="section-y border-y border-steel/25 bg-gunmetal">
         <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
           <h2 class="font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-vellum">
             Past performance
@@ -283,7 +283,7 @@ const cellWide =
   <!-- similar work -------------------------------------------------------- -->
   {
     similar.length > 0 && (
-      <section class="bg-iron py-12 sm:py-16">
+      <section class="section-y bg-iron">
         <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
           <h2 class="font-display text-[clamp(1.6rem,3.5vw,2.25rem)] font-bold uppercase leading-none tracking-tight text-vellum">
             Similar work
@@ -322,7 +322,7 @@ const cellWide =
   }
 
   <!-- one-pager ----------------------------------------------------------- -->
-  <section class="border-t border-steel/25 bg-iron py-12 sm:py-16">
+  <section class="section-y border-t border-steel/25 bg-iron">
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <div
         class="flex flex-col gap-6 border border-steel/25 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10"

@@ -86,6 +86,33 @@
   background-size: 100% 2px;
 }
 
+/* Section rhythm.
+ *
+ * Pages were authored independently and drifted to four different vertical
+ * scales — py-10/12, py-12/16, py-14/16, py-16/20 — which rendered as 48, 64
+ * and 80px for content of the same tier, sometimes twice within one page. The
+ * fix is two documented intervals, not six ad-hoc ones.
+ *
+ * `section-y` is the standard content section. `section-y-tight` is for a
+ * strip that belongs to the section above it — a filter bar, a scope index, a
+ * map header. The 2x step between them is what makes the rhythm read; the
+ * alternating iron/vellum grounds already carry the rest of the cadence.
+ * Reach for a one-off py- value only when a section genuinely is not either
+ * of these, and say why in a comment. */
+@utility section-y {
+  padding-block: calc(var(--spacing) * 16);
+  @media (width >= 40rem) {
+    padding-block: calc(var(--spacing) * 20);
+  }
+}
+
+@utility section-y-tight {
+  padding-block: calc(var(--spacing) * 8);
+  @media (width >= 40rem) {
+    padding-block: calc(var(--spacing) * 10);
+  }
+}
+
 /* Small uppercase mono label used across title blocks and callouts. */
 @utility label-mono {
   font-family: var(--font-mono);

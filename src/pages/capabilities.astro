@@ -139,7 +139,7 @@ const description = `Self-perform heavy civil scopes at ${identity.shortName}: $
   intro="Six scopes we run with our own crews. Each one below is backed by a named project, the owner who bought it, and the quantities on that job's record. Click any line to open the job."
 >
   <!-- Scope index ------------------------------------------------------- -->
-  <section aria-label="Scope index" class="border-b border-steel/20 bg-iron py-8">
+  <section aria-label="Scope index" class="section-y-tight border-b border-steel/20 bg-iron">
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <p class="label-mono">Scope index</p>
       <ul class="mt-4 grid gap-x-10 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -208,7 +208,7 @@ const description = `Self-perform heavy civil scopes at ${identity.shortName}: $
           id={block.id}
           aria-labelledby={`${block.id}-heading`}
           class:list={[
-            "scroll-mt-24 py-14 sm:py-16",
+            "section-y scroll-mt-24",
             tone.ground,
             block.light && "text-graphite",
           ]}
@@ -433,7 +433,7 @@ const description = `Self-perform heavy civil scopes at ${identity.shortName}: $
   <!-- Not confirmed ------------------------------------------------------ -->
   <section
     aria-labelledby="unconfirmed-heading"
-    class="vellum-texture py-14 text-graphite sm:py-16"
+    class="section-y vellum-texture text-graphite"
   >
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <div
@@ -486,7 +486,7 @@ const description = `Self-perform heavy civil scopes at ${identity.shortName}: $
   <!-- To the bid room ---------------------------------------------------- -->
   <section
     aria-labelledby="bidroom-heading"
-    class="bg-blaze py-14 text-iron sm:py-16"
+    class="section-y bg-blaze text-iron"
   >
     <div
       class="mx-auto flex max-w-[86rem] flex-col gap-8 px-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between"

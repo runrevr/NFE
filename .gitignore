@@ -28,3 +28,7 @@ dist/
 .astro/
 
 .vercel
+
+# Impeccable design skills — tooling, not project code (3.4MB, 148 files).
+# Reinstall with: npx impeccable install
+.claude/skills/

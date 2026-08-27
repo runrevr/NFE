@@ -41,7 +41,7 @@ const sullivanJob = projects.find((p) => p.slug === "sullivan-road");
   <!-- Program + the numbers estimators check ------------------------------- -->
   <section
     aria-labelledby="program-heading"
-    class="vellum-texture py-16 sm:py-20"
+    class="section-y vellum-texture"
   >
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <div
@@ -129,7 +129,10 @@ const sullivanJob = projects.find((p) => p.slug === "sullivan-road");
   </section>
 
   <!-- Case study ----------------------------------------------------------- -->
-  <section aria-labelledby="case-heading" class="bg-iron pb-4">
+  <!-- Continues the section above, so no top padding. The bottom is the tight
+       step rather than a one-off: the callout carries its own frame, and the
+       next section opens on the standard interval. -->
+  <section aria-labelledby="case-heading" class="bg-iron pb-8 sm:pb-10">
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <div class="border-l-2 border-blaze bg-gunmetal p-6 sm:p-10">
         <p class="label-mono">Case study</p>
@@ -174,7 +177,7 @@ const sullivanJob = projects.find((p) => p.slug === "sullivan-road");
   <!-- Commendations -------------------------------------------------------- -->
   <section
     aria-labelledby="commendations-heading"
-    class="bg-gunmetal py-16 sm:py-20"
+    class="section-y bg-gunmetal"
   >
     <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
       <h2
@@ -222,7 +225,7 @@ const sullivanJob = projects.find((p) => p.slug === "sullivan-road");
   <!-- Live traffic --------------------------------------------------------- -->
   {
     sullivanJob && sullivanJob.alt && (
-      <section aria-labelledby="traffic-heading" class="bg-iron py-16 sm:py-20">
+      <section aria-labelledby="traffic-heading" class="section-y bg-iron">
         <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
           <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
             <figure>
@@ -263,7 +266,7 @@ const sullivanJob = projects.find((p) => p.slug === "sullivan-road");
   }
 
   <!-- Close ---------------------------------------------------------------- -->
-  <section class="border-t border-steel/25 bg-iron py-12">
+  <section class="section-y border-t border-steel/25 bg-iron">
     <div
       class="mx-auto flex max-w-[86rem] flex-wrap items-center gap-x-8 gap-y-4 px-5 sm:px-8"
     >

@@ -30,6 +30,15 @@ Mono. Numbers should look measured, never marketed.
 **Motion is restrained.** Strokes draw on, counters tick once, sections reveal
 in 200–300ms. Nothing loops except the hero.
 
+**Spacing is on a documented scale.** Section padding comes from `section-y`
+(standard content) or `section-y-tight` (a strip that belongs to the section
+above it — filter bar, scope index, map header), both defined in `global.css`.
+Pages were once authored independently and drifted to four scales that rendered
+as 48, 64 and 80px for content of the same tier, sometimes twice on one page.
+A section that follows a `StationDivider` keeps its tight `py-4`, because the
+divider supplies the space. Any other one-off `py-` value needs a comment
+saying why.
+
 ## Layout
 
 - `src/data/company.ts` — single source of truth
