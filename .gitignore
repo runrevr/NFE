@@ -26,3 +26,5 @@ pnpm-debug.log*
 # NFE prototype
 dist/
 .astro/
+
+.vercel
